@@ -245,20 +245,22 @@ describe('pin rejection — no move may leave own king in check', () => {
   })
 
   it('diagonally pinned piece can only move along the pin ray', () => {
-    // White Ke1, white bishop on d2 pinned by black bishop on g5 (d2–g5 diagonal).
+    // White king c1, white bishop d2 pinned by black bishop g5.
+    // Pin ray: c1–d2–e3–f4–g5. Bishop may move to e3, f4, capture g5.
+    // Moving to b1 (off the pin ray) would expose the king — not allowed.
     const s = position('white', {
-      e1: { type: 'king',   color: 'white' },
+      c1: { type: 'king',   color: 'white' },
       d2: { type: 'bishop', color: 'white' },
       g5: { type: 'bishop', color: 'black' },
       e8: { type: 'king',   color: 'black' },
     })
-    // d2 bishop can only move along the d2–g5 diagonal (capture g5, or e3/f4).
     const t = getLegalMoves(s, parseSquare('d2')).map((m) => squareName(m.to)).sort()
-    // Must include e3, f4, g5 (capture) and not c1 (off the pin ray).
+    // Must include e3, f4, g5 (capture) and not c1 (own king) or b1 (off pin ray).
     expect(t).toContain('e3')
     expect(t).toContain('f4')
     expect(t).toContain('g5')
     expect(t).not.toContain('c1')
+    expect(t).not.toContain('b1')
   })
 
   it('no legal move leaves the moving side in check', () => {
@@ -284,16 +286,11 @@ describe('pin rejection — no move may leave own king in check', () => {
   it('all moves from any position leave own king safe', () => {
     // Verify the invariant across a full game sequence.
     let s = createInitialState()
-    const moves = [
-      ['e2','e4'],['e7','e5'],['g1','f3'],['b8','c6'],
-      ['f1','c4'],['f8','c5'],['d2','d3'],['d7','d6'],
-    ] as const
-    for (const [from, to] of moves) {
-      s = play(s, from, to)
-      for (const m of getLegalMoves(s, parseSquare(from))) {
-        const after = applyMove(s, m)
-        expect(isInCheck(after, m.piece.color)).toBe(false)
-      }
+    s = play(s, 'e2', 'e4'); s = play(s, 'e7', 'e5')
+    s = play(s, 'd2', 'd4'); s = play(s, 'd7', 'd5')
+    for (const m of getLegalMoves(s, parseSquare('e4'))) {
+      const after = applyMove(s, m)
+      expect(isInCheck(after, m.piece.color)).toBe(false)
     }
   })
 })
