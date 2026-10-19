@@ -57,8 +57,6 @@ describe('ChessGame — select-and-move', () => {
     await user.click(sq('e2'))
     expect(sq('e2')).toHaveAttribute('aria-pressed', 'true')
     // e5 is not a legal target for the e2 pawn — it is disabled.
-    // A disabled button cannot be interacted with; the assertions below
-    // confirm the board state is unchanged without needing to attempt a click.
     expect(sq('e5')).toBeDisabled()
     // Turn has not changed; selection is still on e2.
     expect(screen.getByText(/white to move/i)).toBeInTheDocument()
@@ -124,15 +122,18 @@ describe('ChessGame — status display', () => {
     expect(screen.getByRole('status')).toHaveTextContent(/black wins/i)
   })
 
-  it('shows "Game over" text (not a colour to move) after checkmate', async () => {
+  it('shows "Game over" text (not "[colour] to move") after checkmate', async () => {
     const user = userEvent.setup()
     render(<ChessGame />)
     await user.click(sq('f2')); await user.click(sq('f3'))
     await user.click(sq('e7')); await user.click(sq('e5'))
     await user.click(sq('g2')); await user.click(sq('g4'))
     await user.click(sq('d8')); await user.click(sq('h4'))
+    // The turn indicator shows "Game over" after checkmate.
     expect(screen.getByText(/game over/i)).toBeInTheDocument()
-    expect(screen.queryByText(/to move/i)).not.toBeInTheDocument()
+    // "[colour] to move" should no longer appear as the turn indicator text.
+    // Use an anchored regex to avoid matching the hint paragraph's "to move".
+    expect(screen.queryByText(/^(white|black) to move$/i)).not.toBeInTheDocument()
   })
 
   it('board is fully disabled after checkmate', async () => {
