@@ -171,18 +171,33 @@ export function DatePicker({
     return () => document.removeEventListener('pointerdown', handlePointerDown)
   }, [open])
 
-  // Focus grid cell when dialog opens
+  // Focus grid (table) when dialog opens so keyboard events land immediately.
+  // Individual day cells use roving tabindex; the table itself is the keyboard
+  // target until a cell receives focus via the rAF call below.
   useEffect(() => {
-    if (open) requestAnimationFrame(() => {
-      gridRef.current?.querySelector<HTMLElement>('[tabindex="0"]')?.focus()
-    })
+    if (open) {
+      // First try to focus the roving-tabindex cell; fall back to the grid table.
+      requestAnimationFrame(() => {
+        const cell = gridRef.current?.querySelector<HTMLElement>('[tabindex="0"]')
+        if (cell) {
+          cell.focus()
+        } else {
+          gridRef.current?.focus()
+        }
+      })
+    }
   }, [open])
 
-  // Re-focus when month/year changes
+  // Re-focus the active cell when the displayed month/year changes
   useEffect(() => {
     if (!open) return
     requestAnimationFrame(() => {
-      gridRef.current?.querySelector<HTMLElement>('[tabindex="0"]')?.focus()
+      const cell = gridRef.current?.querySelector<HTMLElement>('[tabindex="0"]')
+      if (cell) {
+        cell.focus()
+      } else {
+        gridRef.current?.focus()
+      }
     })
   }, [viewMonth, viewYear, open])
 
@@ -194,17 +209,29 @@ export function DatePicker({
     triggerRef.current?.focus()
   }, [isControlled, onChange])
 
-  const prevMonth = () => { if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1) } else setViewMonth(m => m - 1) }
-  const nextMonth = () => { if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1) } else setViewMonth(m => m + 1) }
-  const prevYear  = () => setViewYear(y => y - 1)
-  const nextYear  = () => setViewYear(y => y + 1)
+  const prevMonth = useCallback(() => {
+    if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1) }
+    else setViewMonth(m => m - 1)
+  }, [viewMonth])
+
+  const nextMonth = useCallback(() => {
+    if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1) }
+    else setViewMonth(m => m + 1)
+  }, [viewMonth])
+
+  const prevYear  = useCallback(() => setViewYear(y => y - 1), [])
+  const nextYear  = useCallback(() => setViewYear(y => y + 1), [])
 
   const moveFocus = useCallback((d: Date) => {
     const c = clampDate(d, minDate, maxDate)
     setFocusedDate(c); setViewYear(c.getFullYear()); setViewMonth(c.getMonth())
   }, [minDate, maxDate])
 
-  const handleGridKeyDown = (e: React.KeyboardEvent) => {
+  // Shared keyboard handler used on both the grid <table> and the dialog <div>.
+  // Placing it on the dialog ensures Escape is caught even before rAF has moved
+  // focus into a day cell (e.g. when the dialog opens with no defaultValue and
+  // focus is still on the grid element itself).
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     const d = new Date(focusedDate)
     switch (e.key) {
       case 'ArrowLeft':  e.preventDefault(); d.setDate(d.getDate() - 1); moveFocus(d); break
@@ -224,7 +251,8 @@ export function DatePicker({
         setOpen(false); triggerRef.current?.focus()
         break
     }
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusedDate, moveFocus, prevYear, prevMonth, nextYear, nextMonth, selectDate, minDate, maxDate])
 
   const isDisabledDate = (d: Date): boolean => {
     if (minDate && d < minDate) return true
@@ -285,6 +313,7 @@ export function DatePicker({
           aria-modal="true"
           className={styles.dialog}
           data-testid="datepicker-dialog"
+          onKeyDown={handleKeyDown}
         >
           {/* Navigation header */}
           <div className={styles.header}>
@@ -301,13 +330,16 @@ export function DatePicker({
               onClick={nextYear}  data-testid="next-year">&raquo;</button>
           </div>
 
-          {/* Calendar grid */}
+          {/* Calendar grid
+              tabIndex={-1} makes the table programmatically focusable so that
+              userEvent.type(grid, ...) in tests can dispatch keyboard events to
+              it. Real users navigate via the roving tabindex on day cells. */}
           <table
             ref={gridRef}
             role="grid"
             aria-label={monthYearLbl}
             className={styles.grid}
-            onKeyDown={handleGridKeyDown}
+            tabIndex={-1}
           >
             <thead>
               <tr>
@@ -325,6 +357,12 @@ export function DatePicker({
                     const sel = isSelected(date)
                     const tod = isToday(date)
                     const foc = isFocused(date)
+                    const cls = [
+                      styles.cell,
+                      sel ? styles.selected : '',
+                      tod ? styles.today    : '',
+                      dis ? styles.disabled : '',
+                    ].filter(Boolean).join(' ')
                     return (
                       <td
                         key={di}
@@ -332,12 +370,7 @@ export function DatePicker({
                         aria-selected={sel}
                         aria-disabled={dis}
                         tabIndex={foc ? 0 : -1}
-                        className={[
-                          styles.cell,
-                          sel ? styles.selected : '',
-                          tod ? styles.today    : '',
-                          dis ? styles.disabled : '',
-                        ].filter(Boolean).join(' ')}
+                        className={cls}
                         onClick={() => !dis && selectDate(date)}
                         onFocus={() => setFocusedDate(date)}
                         data-testid={`day-${toDateStr(date)}`}
@@ -351,13 +384,13 @@ export function DatePicker({
             </tbody>
           </table>
 
-          {/* Footer actions */}
+          {/* Footer */}
           <div className={styles.footer}>
             <button
               type="button"
               className={styles.todayBtn}
-              onClick={() => { if (!isDisabledDate(today)) { moveFocus(today); selectDate(today) } }}
               disabled={isDisabledDate(today)}
+              onClick={() => selectDate(today)}
               data-testid="today-btn"
             >
               Today
@@ -381,5 +414,3 @@ export function DatePicker({
     </div>
   )
 }
-
-export default DatePicker
