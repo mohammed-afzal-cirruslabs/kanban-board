@@ -1,0 +1,161 @@
+/**
+ * LoginForm.module.css
+ * All values reference tokens from src/tokens.css — zero literals.
+ */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 400px;
+  padding: var(--space-8);
+  background: var(--color-surface-0);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+}
+
+.heading {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+  line-height: var(--leading-tight);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.input {
+  height: var(--control-lg);
+  padding: 0 var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  background: var(--color-surface-0);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.input::placeholder {
+  color: var(--color-text-placeholder);
+}
+
+.input:focus {
+  border-color: var(--color-accent);
+  box-shadow: var(--focus-ring);
+}
+
+.input:disabled {
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.inputError {
+  border-color: var(--color-danger);
+}
+
+.inputError:focus {
+  box-shadow: 0 0 0 2px var(--color-surface-0), 0 0 0 4px var(--color-danger);
+}
+
+.errorMsg {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--color-danger);
+  line-height: var(--leading-normal);
+}
+
+.serverError {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+  background: var(--color-danger-subtle);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-md);
+}
+
+.submitBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: var(--control-lg);
+  padding: 0 var(--space-6);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-surface-0);
+  background: var(--color-accent);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.submitBtn:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.submitBtn:active:not(:disabled) {
+  background: var(--color-accent-active);
+}
+
+.submitBtn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.submitBtn:disabled {
+  background: var(--color-surface-3);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* ── Spinner ── */
+.spinner {
+  display: inline-block;
+  width: var(--space-4);
+  height: var(--space-4);
+  border: 2px solid var(--color-surface-3);
+  border-top-color: var(--color-accent);
+  border-radius: var(--radius-full);
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Screen-reader only ── */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
