@@ -1,80 +1,258 @@
-.root { position:relative; display:inline-block; font-family:var(--font-sans); font-size:var(--text-sm); }
+/* ── Root & Label ─────────────────────────────────────────────────────────── */
+
+.root {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+}
 
 .label {
-  display:block;
-  margin-bottom:var(--space-1);
-  font-size:var(--text-sm);
-  font-weight:var(--weight-medium);
-  color:var(--color-text-primary);
+  display: block;
+  margin-bottom: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-primary);
 }
+
+/* ── Trigger Button ───────────────────────────────────────────────────────── */
 
 .trigger {
-  display:inline-flex; align-items:center; gap:var(--space-2);
-  height:var(--control-md); padding:0 var(--space-3);
-  background:var(--color-surface-0); border:1px solid var(--color-border-strong);
-  border-radius:var(--radius-md); color:var(--color-text-primary);
-  font-family:var(--font-sans); font-size:var(--text-sm); font-weight:var(--weight-regular);
-  cursor:pointer; min-width:180px; justify-content:space-between;
-  transition:border-color var(--duration-fast) var(--ease-out),box-shadow var(--duration-fast) var(--ease-out);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--control-md);
+  padding: 0 var(--space-3);
+  background: var(--color-surface-0);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  cursor: pointer;
+  min-width: 180px;
+  justify-content: space-between;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
 }
-.trigger:hover:not(:disabled) { border-color:var(--color-accent); }
-.trigger:focus-visible { outline:none; box-shadow:var(--focus-ring); }
-.trigger:disabled { opacity:0.5; cursor:not-allowed; }
-.triggerText { flex:1; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.placeholder { color:var(--color-text-placeholder); }
-.icon { flex-shrink:0; color:var(--color-text-muted); }
+
+.trigger:hover:not(:disabled)  { border-color: var(--color-accent); }
+.trigger:focus-visible         { outline: none; box-shadow: var(--focus-ring); }
+.trigger:disabled              { opacity: 0.5; cursor: not-allowed; }
+.triggerOpen                   { border-color: var(--color-accent); box-shadow: var(--focus-ring); }
+
+/* Value / placeholder spans inside trigger */
+.triggerValue {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-text-primary);
+}
+
+.triggerPlaceholder {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-text-placeholder);
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-muted);
+}
+
+/* ── Popover Dialog ───────────────────────────────────────────────────────── */
 
 .dialog {
-  position:absolute; top:calc(100% + var(--space-1)); left:0; z-index:100;
-  background:var(--color-surface-0); border:1px solid var(--color-border-strong);
-  border-radius:var(--radius-lg); box-shadow:var(--shadow-3); padding:var(--space-3);
-  min-width:280px; animation:dp-appear var(--duration-normal) var(--ease-out) both;
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  z-index: 100;
+  background: var(--color-surface-0);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-3);
+  padding: var(--space-3);
+  min-width: 280px;
+  animation: dp-appear var(--duration-normal) var(--ease-out) both;
 }
-@keyframes dp-appear {
-  from { opacity:0; transform:translateY(-4px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-.header { display:flex; align-items:center; gap:var(--space-1); margin-bottom:var(--space-3); }
-.monthYear { flex:1; text-align:center; font-size:var(--text-base); font-weight:var(--weight-semibold); color:var(--color-text-primary); }
-.navBtn {
-  display:inline-flex; align-items:center; justify-content:center;
-  width:28px; height:28px; border:none; border-radius:var(--radius-md);
-  background:transparent; color:var(--color-text-muted); font-size:var(--text-md);
-  cursor:pointer; flex-shrink:0;
-  transition:background var(--duration-fast) var(--ease-out),color var(--duration-fast) var(--ease-out);
-}
-.navBtn:hover { background:var(--color-surface-2); color:var(--color-text-primary); }
-.navBtn:focus-visible { outline:none; box-shadow:var(--focus-ring); }
 
-/* Grid — tabIndex={-1} makes it programmatically focusable for keyboard tests;
-   outline:none suppresses the default focus ring on the table itself since
-   focus is always immediately moved to a day cell via rAF. */
-.grid { width:100%; border-collapse:collapse; table-layout:fixed; outline:none; }
-.dayHeader { padding:var(--space-1) 0; text-align:center; font-size:var(--text-xs); font-weight:var(--weight-semibold); color:var(--color-text-muted); letter-spacing:var(--tracking-wide); text-transform:uppercase; }
-.cell {
-  text-align:center; padding:2px; cursor:pointer; border-radius:var(--radius-sm);
-  font-size:var(--text-sm); color:var(--color-text-secondary); height:36px; outline:none;
-  transition:background var(--duration-fast) var(--ease-out),color var(--duration-fast) var(--ease-out);
+@keyframes dp-appear {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-.cell:hover:not(.disabled) { background:var(--color-surface-2); color:var(--color-text-primary); }
-.cell:focus-visible { box-shadow:var(--focus-ring); }
-.cell.today { font-weight:var(--weight-semibold); color:var(--color-accent); }
-.cell.today::after { content:''; display:block; width:4px; height:4px; border-radius:var(--radius-full); background:var(--color-accent); margin:0 auto; margin-top:-2px; }
-.cell.selected { background:var(--color-accent); color:#fff; font-weight:var(--weight-semibold); }
-.cell.selected:hover { background:var(--color-accent-hover); color:#fff; }
-.cell.disabled { color:var(--color-text-placeholder); cursor:not-allowed; pointer-events:none; }
+
+/* ── Calendar Header (nav row) ────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.monthYear {
+  flex: 1;
+  text-align: center;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.navBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--text-md);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.navBtn:hover        { background: var(--color-surface-2); color: var(--color-text-primary); }
+.navBtn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* ── Calendar Grid ────────────────────────────────────────────────────────── */
+
+/*
+  tabIndex={-1} makes the grid programmatically focusable for keyboard tests;
+  outline:none suppresses the default focus ring on the table itself since
+  focus is always immediately moved to a day cell via rAF.
+*/
+.grid {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  outline: none;
+}
+
+.dayHeader {
+  padding: var(--space-1) 0;
+  text-align: center;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+/* Base day button — component uses styles.day */
+.day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 36px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  outline: none;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.day:hover:not(:disabled):not(.dayDisabled) {
+  background: var(--color-surface-2);
+  color: var(--color-text-primary);
+}
+.day:focus-visible { box-shadow: var(--focus-ring); }
+.day:disabled      { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+/* Today state */
+.dayToday {
+  font-weight: var(--weight-semibold);
+  color: var(--color-accent);
+}
+
+.dayToday::after {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  margin: 0 auto;
+  margin-top: -2px;
+}
+
+/* Selected state */
+.daySelected {
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: var(--weight-semibold);
+}
+
+.daySelected:hover {
+  background: var(--color-accent-hover);
+  color: #fff;
+}
+
+/* Disabled state */
+.dayDisabled {
+  color: var(--color-text-placeholder);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .empty {}
 
-.footer { display:flex; gap:var(--space-2); margin-top:var(--space-3); padding-top:var(--space-3); border-top:1px solid var(--color-border); }
-.todayBtn, .clearBtn {
-  flex:1; height:var(--control-sm); border:1px solid var(--color-border-strong);
-  border-radius:var(--radius-md); background:transparent;
-  font-family:var(--font-sans); font-size:var(--text-xs); font-weight:var(--weight-medium); cursor:pointer;
-  transition:background var(--duration-fast) var(--ease-out),color var(--duration-fast) var(--ease-out);
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+
+.footer {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
 }
-.todayBtn { color:var(--color-accent); border-color:var(--color-accent-border); }
-.todayBtn:hover:not(:disabled) { background:var(--color-accent-subtle); }
-.todayBtn:disabled { opacity:0.4; cursor:not-allowed; }
-.clearBtn { color:var(--color-text-muted); }
-.clearBtn:hover { background:var(--color-surface-2); color:var(--color-text-primary); }
-.todayBtn:focus-visible, .clearBtn:focus-visible { outline:none; box-shadow:var(--focus-ring); }
+
+.todayBtn,
+.clearBtn {
+  flex: 1;
+  height: var(--control-sm);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.todayBtn {
+  color: var(--color-accent);
+  border-color: var(--color-accent-border);
+}
+
+.todayBtn:hover:not(:disabled) { background: var(--color-accent-subtle); }
+.todayBtn:disabled             { opacity: 0.4; cursor: not-allowed; }
+
+.clearBtn { color: var(--color-text-muted); }
+.clearBtn:hover { background: var(--color-surface-2); color: var(--color-text-primary); }
+
+.todayBtn:focus-visible,
+.clearBtn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
