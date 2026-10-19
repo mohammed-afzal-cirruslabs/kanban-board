@@ -185,14 +185,15 @@ describe('check and checkmate', () => {
   })
 
   it('does not let a pinned piece expose its own king', () => {
-    // Black Ke8, black bishop d7 pinned by white rook on e1 → d7 cannot move.
+    // Black Ke8, black bishop on e7 shielding the king from white Re1.
+    // Any bishop move uncovers the e-file, so the bishop has zero legal moves.
     const s = position('black', {
       e8: { type: 'king', color: 'black' },
       e7: { type: 'bishop', color: 'black' },
       e1: { type: 'rook', color: 'white' },
       a1: { type: 'king', color: 'white' },
     })
-    // The bishop is pinned on the e-file; every bishop move leaves the king in check.
+    expect(isInCheck(s, 'black')).toBe(false)
     expect(getLegalMoves(s, parseSquare('e7'))).toHaveLength(0)
   })
 })
@@ -256,7 +257,8 @@ describe('special moves', () => {
       f8: { type: 'rook', color: 'black' },
       a8: { type: 'king', color: 'black' },
     })
-    // Rights are off in `position`, so assert via a state that has them.
+    // `position` clears rights; re-enable the kingside right to prove the
+    // transit-square rule is what blocks the castle, not a missing right.
     const withRights: GameState = {
       ...s,
       castling: { ...s.castling, whiteKingside: true },
