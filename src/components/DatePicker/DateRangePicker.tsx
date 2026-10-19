@@ -106,7 +106,8 @@ interface CalendarProps {
   onPrevYear: () => void
   onNextYear: () => void
   onClose: () => void
-  gridRef: React.RefObject<HTMLTableElement | null>
+  /** Ref passed down from DateRangePicker so focus management works. */
+  gridRef: React.RefObject<HTMLTableElement>
   testIdPrefix?: string
 }
 
@@ -118,7 +119,7 @@ function Calendar({
   onPrevMonth, onNextMonth, onPrevYear, onNextYear, onClose,
   gridRef, testIdPrefix = '',
 }: CalendarProps) {
-  const dayLabels = getDayLabels(locale)
+  const dayLabels  = getDayLabels(locale)
   const monthLabel = getMonthName(viewYear, viewMonth, locale)
 
   const isDisabled = (d: Date) => {
@@ -221,11 +222,11 @@ function Calendar({
 
                 const cls = [
                   styles.cell,
-                  start   ? styles.rangeStart : '',
-                  end     ? styles.rangeEnd   : '',
-                  range   ? styles.inRange    : '',
-                  tod     ? styles.today      : '',
-                  dis     ? styles.disabled   : '',
+                  start ? styles.rangeStart : '',
+                  end   ? styles.rangeEnd   : '',
+                  range ? styles.inRange    : '',
+                  tod   ? styles.today      : '',
+                  dis   ? styles.disabled   : '',
                 ].filter(Boolean).join(' ')
 
                 return (
@@ -306,7 +307,9 @@ export function DateRangePicker({
 
   const triggerRef = useRef<HTMLButtonElement>(null)
   const dialogRef  = useRef<HTMLDivElement>(null)
-  const gridRef    = useRef<HTMLTableElement>(null)
+  // useRef<T>(null) returns MutableRefObject<T | null> in React 18 strict mode,
+  // but Calendar expects RefObject<HTMLTableElement>. Cast via the shared type.
+  const gridRef = useRef<HTMLTableElement>(null) as React.RefObject<HTMLTableElement>
 
   // Sync view when controlled value changes
   useEffect(() => {
