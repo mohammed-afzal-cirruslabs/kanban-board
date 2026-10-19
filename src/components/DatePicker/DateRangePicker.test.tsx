@@ -15,7 +15,7 @@ import { DateRangePicker } from './DateRangePicker'
 import type { DateRange } from './types'
 
 async function openPickerAsync(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByTestId('drp-trigger'))
+  await user.click(screen.getByTestId('daterangepicker-trigger'))
   return screen.getByTestId('drp-dialog')
 }
 
@@ -26,7 +26,7 @@ async function clickDay(user: ReturnType<typeof userEvent.setup>, dateStr: strin
 describe('DateRangePicker — rendering', () => {
   it('renders a trigger button', () => {
     render(<DateRangePicker />)
-    expect(screen.getByTestId('drp-trigger')).toBeInTheDocument()
+    expect(screen.getByTestId('daterangepicker-trigger')).toBeInTheDocument()
   })
   it('shows placeholder when no range is selected', () => {
     render(<DateRangePicker placeholder="Pick a range" />)
@@ -38,7 +38,7 @@ describe('DateRangePicker — rendering', () => {
   })
   it('renders trigger as disabled when disabled prop is true', () => {
     render(<DateRangePicker disabled />)
-    expect(screen.getByTestId('drp-trigger')).toBeDisabled()
+    expect(screen.getByTestId('daterangepicker-trigger')).toBeDisabled()
   })
   it('renders a visible label element when label prop is provided', () => {
     render(<DateRangePicker label="Booking period" />)
@@ -46,14 +46,14 @@ describe('DateRangePicker — rendering', () => {
   })
   it('displays the defaultValue start date in the trigger', () => {
     render(<DateRangePicker defaultValue={{ start: '2024-06-10', end: '2024-06-20' }} />)
-    const trigger = screen.getByTestId('drp-trigger')
+    const trigger = screen.getByTestId('daterangepicker-trigger')
     expect(trigger).toHaveTextContent('June')
     expect(trigger).toHaveTextContent('10')
     expect(trigger).toHaveTextContent('2024')
   })
   it('displays both start and end dates in the trigger when a full range is set', () => {
     render(<DateRangePicker defaultValue={{ start: '2024-06-10', end: '2024-06-20' }} />)
-    const trigger = screen.getByTestId('drp-trigger')
+    const trigger = screen.getByTestId('daterangepicker-trigger')
     expect(trigger.textContent).toMatch(/10/)
     expect(trigger.textContent).toMatch(/20/)
   })
@@ -69,7 +69,7 @@ describe('DateRangePicker — open / close', () => {
   it('closes the calendar when trigger is clicked again', async () => {
     const user = userEvent.setup()
     render(<DateRangePicker />)
-    const trigger = screen.getByTestId('drp-trigger')
+    const trigger = screen.getByTestId('daterangepicker-trigger')
     await user.click(trigger)
     await user.click(trigger)
     expect(screen.queryByTestId('drp-dialog')).not.toBeInTheDocument()
@@ -77,13 +77,13 @@ describe('DateRangePicker — open / close', () => {
   it('does not open the calendar when disabled', async () => {
     const user = userEvent.setup()
     render(<DateRangePicker disabled />)
-    await user.click(screen.getByTestId('drp-trigger'))
+    await user.click(screen.getByTestId('daterangepicker-trigger'))
     expect(screen.queryByTestId('drp-dialog')).not.toBeInTheDocument()
   })
   it('sets aria-expanded=true on trigger when open', async () => {
     const user = userEvent.setup()
     render(<DateRangePicker />)
-    const trigger = screen.getByTestId('drp-trigger')
+    const trigger = screen.getByTestId('daterangepicker-trigger')
     expect(trigger).toHaveAttribute('aria-expanded', 'false')
     await user.click(trigger)
     expect(trigger).toHaveAttribute('aria-expanded', 'true')
@@ -94,7 +94,7 @@ describe('DateRangePicker — open / close', () => {
     await openPickerAsync(user)
     await user.keyboard('{Escape}')
     expect(screen.queryByTestId('drp-dialog')).not.toBeInTheDocument()
-    expect(screen.getByTestId('drp-trigger')).toHaveFocus()
+    expect(screen.getByTestId('daterangepicker-trigger')).toHaveFocus()
   })
 })
 
@@ -145,7 +145,7 @@ describe('DateRangePicker — range selection', () => {
     await openPickerAsync(user)
     await clickDay(user, '2024-06-05')
     await clickDay(user, '2024-06-20')
-    const trigger = screen.getByTestId('drp-trigger')
+    const trigger = screen.getByTestId('daterangepicker-trigger')
     expect(trigger.textContent).toMatch(/5/)
     expect(trigger.textContent).toMatch(/20/)
   })
@@ -185,7 +185,7 @@ describe('DateRangePicker — onChange contract', () => {
 describe('DateRangePicker — controlled mode', () => {
   it('displays the controlled value in the trigger', () => {
     render(<DateRangePicker value={{ start: '2024-06-10', end: '2024-06-20' }} onChange={() => {}} />)
-    const trigger = screen.getByTestId('drp-trigger')
+    const trigger = screen.getByTestId('daterangepicker-trigger')
     expect(trigger.textContent).toMatch(/10/)
     expect(trigger.textContent).toMatch(/20/)
   })
@@ -196,7 +196,7 @@ describe('DateRangePicker — controlled mode', () => {
     await openPickerAsync(user)
     await clickDay(user, '2024-06-05')
     expect(onChange).toHaveBeenCalled()
-    expect(screen.getByTestId('drp-trigger').textContent).toMatch(/10/)
+    expect(screen.getByTestId('daterangepicker-trigger').textContent).toMatch(/10/)
   })
   it('updates display when controlled value prop changes', () => {
     function Wrapper() {
@@ -210,6 +210,6 @@ describe('DateRangePicker — controlled mode', () => {
     }
     render(<Wrapper />)
     fireEvent.click(screen.getByText('Update'))
-    expect(screen.getByTestId('drp-trigger').textContent).toMatch(/July/)
+    expect(screen.getByTestId('daterangepicker-trigger').textContent).toMatch(/July/)
   })
 })
