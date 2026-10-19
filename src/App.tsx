@@ -18,9 +18,10 @@ import { KanbanColumn } from './components/KanbanColumn'
 import { KanbanCard } from './components/KanbanCard'
 import { TodoPage } from './components/TodoPage'
 import { DatePicker, DateRangePicker } from './components/DatePicker'
+import { ChessGame } from './chess/components/ChessGame'
 import styles from './App.module.css'
 
-type View = 'kanban' | 'todo' | 'datepicker'
+type View = 'kanban' | 'todo' | 'datepicker' | 'chess'
 
 function findColumnByCardId(columns: Column[], cardId: string): Column | undefined {
   return columns.find((col) => col.cards.some((c) => c.id === cardId))
@@ -112,12 +113,17 @@ function App() {
     )
   }
 
+  const viewTitle: Record<View, string> = {
+    kanban: 'Kanban Board',
+    todo: 'Todo List',
+    datepicker: 'Date Picker',
+    chess: 'Chess',
+  }
+
   return (
     <div className={styles.app}>
       <header className={styles.appHeader}>
-        <h1 className={styles.appTitle}>
-          {view === 'kanban' ? 'Kanban Board' : view === 'todo' ? 'Todo List' : 'Date Picker'}
-        </h1>
+        <h1 className={styles.appTitle}>{viewTitle[view]}</h1>
         <nav className={styles.nav} aria-label="App navigation">
           <button
             className={`${styles.navBtn} ${view === 'kanban' ? styles.navBtnActive : ''}`}
@@ -139,6 +145,13 @@ function App() {
             aria-current={view === 'datepicker' ? 'page' : undefined}
           >
             Date Picker
+          </button>
+          <button
+            className={`${styles.navBtn} ${view === 'chess' ? styles.navBtnActive : ''}`}
+            onClick={() => setView('chess')}
+            aria-current={view === 'chess' ? 'page' : undefined}
+          >
+            Chess
           </button>
         </nav>
         {view === 'kanban' && (
@@ -170,7 +183,7 @@ function App() {
         </main>
       ) : view === 'todo' ? (
         <TodoPage />
-      ) : (
+      ) : view === 'datepicker' ? (
         <main style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem', maxWidth: 640 }}>
           <section>
             <h2 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted, #888)' }}>
@@ -214,6 +227,10 @@ function App() {
             </h2>
             <DateRangePicker defaultValue={{ start: '2024-06-10', end: '2024-06-20' }} locale="fr" />
           </section>
+        </main>
+      ) : (
+        <main role="main">
+          <ChessGame />
         </main>
       )}
     </div>
