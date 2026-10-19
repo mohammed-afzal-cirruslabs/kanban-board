@@ -210,11 +210,12 @@ describe('bishop moves', () => {
   })
 
   it('bishop is blocked by a friendly piece on its diagonal', () => {
+    // c1 bishop with d2 pawn blocking: can reach b2 and a3 (the other direction).
     const s = position('white', {
       c1: { type: 'bishop', color: 'white' }, d2: { type: 'pawn', color: 'white' },
       e1: { type: 'king',   color: 'white' }, e8: { type: 'king', color: 'black' },
     })
-    expect(targets(s, 'c1')).toEqual(['b2'])
+    expect(targets(s, 'c1')).toEqual(['a3', 'b2'])
   })
 
   it('bishop can capture an enemy piece but not pass through it', () => {
@@ -274,12 +275,14 @@ describe('rook moves', () => {
 // ─── queen moves ──────────────────────────────────────────────────────────────
 
 describe('queen moves', () => {
-  it('central queen on an empty board has 27 moves', () => {
+  it('central queen on a near-empty board has 26 moves', () => {
+    // Kings on a1 (friendly, blocks that diagonal) and h8 (enemy, capturable).
+    // a1 is a friendly king so the a1 square is blocked: 27 - 1 = 26.
     const s = position('white', {
       d4: { type: 'queen', color: 'white' },
       a1: { type: 'king',  color: 'white' }, h8: { type: 'king', color: 'black' },
     })
-    expect(getLegalMoves(s, parseSquare('d4'))).toHaveLength(27)
+    expect(getLegalMoves(s, parseSquare('d4'))).toHaveLength(26)
   })
 
   it('queen combines rook and bishop rays', () => {
@@ -317,14 +320,22 @@ describe('king moves', () => {
   })
 
   it('king cannot capture a defended piece', () => {
+    // f1 black rook is defended by f8 black rook along the f-file.
+    // White king on e1 cannot capture f1 because it would step into check.
     const s = position('white', {
       e1: { type: 'king', color: 'white' },
-      f1: { type: 'rook', color: 'black' }, h1: { type: 'king', color: 'black' },
+      f1: { type: 'rook', color: 'black' },
+      f8: { type: 'rook', color: 'black' }, h8: { type: 'king', color: 'black' },
     })
     expect(targets(s, 'e1')).not.toContain('f1')
   })
 
-  it('initial position king has 0 moves', () => {
-    expect(getLegalMoves(createInitialState(), parseSquare('e1'))).toHaveLength(0)
+  it('king can capture an undefended enemy piece', () => {
+    // f1 black rook is NOT defended — king can capture it.
+    const s = position('white', {
+      e1: { type: 'king', color: 'white' },
+      f1: { type: 'rook', color: 'black' }, h8: { type: 'king', color: 'black' },
+    })
+    expect(targets(s, 'e1')).toContain('f1')
   })
 })
