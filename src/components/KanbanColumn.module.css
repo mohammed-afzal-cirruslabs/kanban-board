@@ -1,147 +1,198 @@
+/* ─── Column shell ───────────────────────────────────────────────────────── */
 .column {
   display: flex;
   flex-direction: column;
-  background: #f7fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  width: 320px;
-  min-width: 280px;
-  max-height: calc(100vh - 140px);
-  transition: background 0.15s ease, border-color 0.15s ease;
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  width: var(--column-width);
+  min-width: var(--column-min-width);
+  max-height: calc(100vh - var(--header-height) - var(--space-7) * 2);
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
 }
 
+/* Drag-over state */
 .column.over {
-  background: #ebf4ff;
-  border-color: #4299e1;
+  background: var(--color-accent-subtle);
+  border-color: var(--color-accent-border);
 }
 
+/* ─── Column header ──────────────────────────────────────────────────────── */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 16px 10px;
+  padding: var(--space-4) var(--space-4) var(--space-2);
   flex-shrink: 0;
 }
 
 .columnTitle {
   margin: 0;
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #2d3748;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-secondary);
 }
 
 .count {
-  background: #e2e8f0;
-  color: #4a5568;
-  font-size: 0.75rem;
-  font-weight: 700;
-  border-radius: 999px;
-  padding: 2px 8px;
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  border-radius: var(--radius-full);
+  padding: 2px var(--space-2);
   min-width: 24px;
   text-align: center;
+  line-height: 1.6;
 }
 
+/* ─── Card list ──────────────────────────────────────────────────────────── */
 .cardList {
   flex: 1;
   overflow-y: auto;
-  padding: 4px 12px 8px;
+  padding: var(--space-1) var(--space-3) var(--space-2);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
   min-height: 60px;
 }
 
+/* ─── Empty state ────────────────────────────────────────────────────────── */
 .empty {
   margin: 0;
-  padding: 20px 0;
+  padding: var(--space-6) var(--space-2);
   text-align: center;
-  color: #a0aec0;
-  font-size: 0.8rem;
+  color: var(--color-text-placeholder);
+  font-size: var(--text-sm);
   font-style: italic;
+  line-height: var(--leading-normal);
 }
 
+/* ─── Footer / add-card affordance ──────────────────────────────────────── */
 .footer {
-  padding: 8px 12px 12px;
+  padding: var(--space-2) var(--space-3) var(--space-3);
   flex-shrink: 0;
 }
 
 .addBtn {
   width: 100%;
+  height: var(--control-md);
   background: none;
-  border: 1px dashed #cbd5e0;
-  border-radius: 8px;
-  padding: 8px 12px;
-  color: #718096;
-  font-size: 0.85rem;
+  border: 1px dashed var(--color-surface-3);
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-medium);
   cursor: pointer;
   text-align: left;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
 }
 
 .addBtn:hover {
-  background: #edf2f7;
-  color: #2d3748;
+  background: var(--color-surface-2);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-strong);
 }
 
+.addBtn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ─── Add-card form ──────────────────────────────────────────────────────── */
 .addForm {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .input {
   width: 100%;
+  height: var(--control-md);
   box-sizing: border-box;
-  border: 1px solid #cbd5e0;
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 0.85rem;
-  color: #2d3748;
-  background: #ffffff;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  background: var(--color-surface-0);
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.input::placeholder {
+  color: var(--color-text-placeholder);
 }
 
 .input:focus {
-  border-color: #4299e1;
-  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.25);
+  border-color: var(--color-accent);
+  box-shadow: var(--focus-ring);
 }
 
 .formActions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
 .btnPrimary {
   flex: 1;
-  background: #4299e1;
-  color: #ffffff;
+  height: var(--control-md);
+  background: var(--color-accent);
+  color: var(--color-surface-0);
   border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 0.85rem;
-  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-semibold);
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background var(--duration-fast) var(--ease-out);
 }
 
 .btnPrimary:hover {
-  background: #3182ce;
+  background: var(--color-accent-hover);
+}
+
+.btnPrimary:active {
+  background: var(--color-accent-active);
+}
+
+.btnPrimary:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .btnGhost {
+  height: var(--control-md);
   background: none;
-  border: 1px solid #cbd5e0;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 0.85rem;
-  color: #718096;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
+  font-family: var(--font-sans);
+  color: var(--color-text-muted);
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
 }
 
 .btnGhost:hover {
-  background: #edf2f7;
+  background: var(--color-surface-2);
+  color: var(--color-text-secondary);
+}
+
+.btnGhost:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
