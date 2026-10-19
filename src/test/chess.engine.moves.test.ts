@@ -64,17 +64,14 @@ describe('castling', () => {
   })
 
   it('cannot castle when a piece is between king and rook', () => {
-    // Initial position: bishop on f1 blocks kingside castling.
     const s = createInitialState()
     expect(getLegalMoves(s, parseSquare('e1')).some((m) => m.flags.castleKingside)).toBe(false)
   })
 
   it('cannot castle when king is in check', () => {
     const s = position('white', {
-      e1: { type: 'king', color: 'white' },
-      h1: { type: 'rook', color: 'white' },
-      e8: { type: 'rook', color: 'black' },
-      a8: { type: 'king', color: 'black' },
+      e1: { type: 'king', color: 'white' }, h1: { type: 'rook', color: 'white' },
+      e8: { type: 'rook', color: 'black' }, a8: { type: 'king', color: 'black' },
     }, { castling: { whiteKingside: true, whiteQueenside: false, blackKingside: false, blackQueenside: false } })
     expect(isInCheck(s, 'white')).toBe(true)
     expect(getLegalMoves(s, parseSquare('e1')).some((m) => m.flags.castleKingside)).toBe(false)
@@ -82,38 +79,34 @@ describe('castling', () => {
 
   it('cannot castle through an attacked square', () => {
     const s = position('white', {
-      e1: { type: 'king', color: 'white' },
-      h1: { type: 'rook', color: 'white' },
-      f8: { type: 'rook', color: 'black' },
-      a8: { type: 'king', color: 'black' },
+      e1: { type: 'king', color: 'white' }, h1: { type: 'rook', color: 'white' },
+      f8: { type: 'rook', color: 'black' }, a8: { type: 'king', color: 'black' },
     }, { castling: { whiteKingside: true, whiteQueenside: false, blackKingside: false, blackQueenside: false } })
     expect(getLegalMoves(s, parseSquare('e1')).some((m) => m.flags.castleKingside)).toBe(false)
   })
 
   it('cannot castle into an attacked square', () => {
     const s = position('white', {
-      e1: { type: 'king', color: 'white' },
-      h1: { type: 'rook', color: 'white' },
-      g8: { type: 'rook', color: 'black' },
-      a8: { type: 'king', color: 'black' },
+      e1: { type: 'king', color: 'white' }, h1: { type: 'rook', color: 'white' },
+      g8: { type: 'rook', color: 'black' }, a8: { type: 'king', color: 'black' },
     }, { castling: { whiteKingside: true, whiteQueenside: false, blackKingside: false, blackQueenside: false } })
     expect(getLegalMoves(s, parseSquare('e1')).some((m) => m.flags.castleKingside)).toBe(false)
   })
 
-  it('castling rights are revoked when the king moves', () => {
+  it('castling rights revoked when king moves', () => {
     let s = createInitialState()
     s = play(s, 'e2', 'e4'); s = play(s, 'e7', 'e5')
     s = play(s, 'g1', 'f3'); s = play(s, 'g8', 'f6')
     s = play(s, 'f1', 'c4'); s = play(s, 'f8', 'c5')
-    s = play(s, 'e1', 'f1'); // king moves — loses both rights
+    s = play(s, 'e1', 'f1')
     expect(s.castling.whiteKingside).toBe(false)
     expect(s.castling.whiteQueenside).toBe(false)
   })
 
-  it('castling rights are revoked when the rook moves', () => {
+  it('castling rights revoked when rook moves', () => {
     let s = createInitialState()
     s = play(s, 'h2', 'h4'); s = play(s, 'a7', 'a5')
-    s = play(s, 'h1', 'h3'); // h1 rook moves
+    s = play(s, 'h1', 'h3')
     expect(s.castling.whiteKingside).toBe(false)
     expect(s.castling.whiteQueenside).toBe(true)
   })
@@ -127,7 +120,7 @@ describe('en passant', () => {
     s = play(s, 'e2', 'e4')
     expect(s.enPassantTarget).toEqual(parseSquare('e3'))
     s = play(s, 'a7', 'a6')
-    expect(s.enPassantTarget).toBeNull() // cleared after the next move
+    expect(s.enPassantTarget).toBeNull()
   })
 
   it('white captures en passant', () => {
@@ -156,15 +149,151 @@ describe('en passant', () => {
     expect(pieceAt(s.board, parseSquare('d3'))).toEqual({ type: 'pawn', color: 'black' })
   })
 
-  it('en passant is only available immediately after the double push', () => {
+  it('en passant is only available the ply immediately after the double push', () => {
     let s = createInitialState()
     s = play(s, 'e2', 'e4'); s = play(s, 'a7', 'a6')
     s = play(s, 'e4', 'e5'); s = play(s, 'd7', 'd5')
-    // d5 double push — ep available now
     expect(s.enPassantTarget).not.toBeNull()
-    s = play(s, 'a2', 'a3') // white plays something else
-    // ep target cleared
+    s = play(s, 'a2', 'a3')
     expect(s.enPassantTarget).toBeNull()
     expect(getLegalMoves(s, parseSquare('e5')).some((m) => m.flags.enPassant)).toBe(false)
+  })
+})
+
+// ─── promotion ────────────────────────────────────────────────────────────────
+
+describe('pawn promotion', () => {
+  it('offers all four promotion pieces', () => {
+    const s = position('white', {
+      a7: { type: 'pawn', color: 'white' },
+      e1: { type: 'king', color: 'white' },
+      e8: { type: 'king', color: 'black' },
+    })
+    const promos = getLegalMoves(s, parseSquare('a7'))
+      .filter((m) => m.flags.promotion)
+      .map((m) => m.flags.promotionPiece)
+      .sort()
+    expect(promos).toEqual(['bishop', 'knight', 'queen', 'rook'])
+  })
+
+  it('promotes to queen and places the correct piece', () => {
+    const s = position('white', {
+      a7: { type: 'pawn', color: 'white' },
+      e1: { type: 'king', color: 'white' },
+      e8: { type: 'king', color: 'black' },
+    })
+    const next = play(s, 'a7', 'a8', 'queen')
+    expect(pieceAt(next.board, parseSquare('a8'))).toEqual({ type: 'queen', color: 'white' })
+    expect(pieceAt(next.board, parseSquare('a7'))).toBeNull()
+  })
+
+  it('promotes to knight', () => {
+    const s = position('white', {
+      a7: { type: 'pawn', color: 'white' },
+      e1: { type: 'king', color: 'white' },
+      e8: { type: 'king', color: 'black' },
+    })
+    const next = play(s, 'a7', 'a8', 'knight')
+    expect(pieceAt(next.board, parseSquare('a8'))).toEqual({ type: 'knight', color: 'white' })
+  })
+
+  it('promotion via capture also promotes', () => {
+    const s = position('white', {
+      a7: { type: 'pawn',  color: 'white' },
+      b8: { type: 'rook',  color: 'black' },
+      e1: { type: 'king',  color: 'white' },
+      e8: { type: 'king',  color: 'black' },
+    })
+    const promos = getLegalMoves(s, parseSquare('a7'))
+      .filter((m) => m.flags.promotion && squareName(m.to) === 'b8')
+      .map((m) => m.flags.promotionPiece)
+      .sort()
+    expect(promos).toEqual(['bishop', 'knight', 'queen', 'rook'])
+    const next = play(s, 'a7', 'b8', 'queen')
+    expect(pieceAt(next.board, parseSquare('b8'))).toEqual({ type: 'queen', color: 'white' })
+  })
+
+  it('black pawn promotes on rank 1', () => {
+    const s = position('black', {
+      h2: { type: 'pawn', color: 'black' },
+      e8: { type: 'king', color: 'black' },
+      e1: { type: 'king', color: 'white' },
+    })
+    const promos = getLegalMoves(s, parseSquare('h2'))
+      .filter((m) => m.flags.promotion)
+      .map((m) => m.flags.promotionPiece)
+      .sort()
+    expect(promos).toEqual(['bishop', 'knight', 'queen', 'rook'])
+    const next = play(s, 'h2', 'h1', 'queen')
+    expect(pieceAt(next.board, parseSquare('h1'))).toEqual({ type: 'queen', color: 'black' })
+  })
+})
+
+// ─── pin rejection (self-check prevention) ────────────────────────────────────
+
+describe('pin rejection — no move may leave own king in check', () => {
+  it('absolutely pinned piece has zero legal moves', () => {
+    // Black Ke8, black bishop on e7 shields king from white Re1.
+    const s = position('black', {
+      e8: { type: 'king',   color: 'black' },
+      e7: { type: 'bishop', color: 'black' },
+      e1: { type: 'rook',   color: 'white' },
+      a1: { type: 'king',   color: 'white' },
+    })
+    expect(isInCheck(s, 'black')).toBe(false)
+    expect(getLegalMoves(s, parseSquare('e7'))).toHaveLength(0)
+  })
+
+  it('diagonally pinned piece can only move along the pin ray', () => {
+    // White Ke1, white bishop on d2 pinned by black bishop on g5 (d2–g5 diagonal).
+    const s = position('white', {
+      e1: { type: 'king',   color: 'white' },
+      d2: { type: 'bishop', color: 'white' },
+      g5: { type: 'bishop', color: 'black' },
+      e8: { type: 'king',   color: 'black' },
+    })
+    // d2 bishop can only move along the d2–g5 diagonal (capture g5, or e3/f4).
+    const t = getLegalMoves(s, parseSquare('d2')).map((m) => squareName(m.to)).sort()
+    // Must include e3, f4, g5 (capture) and not c1 (off the pin ray).
+    expect(t).toContain('e3')
+    expect(t).toContain('f4')
+    expect(t).toContain('g5')
+    expect(t).not.toContain('c1')
+  })
+
+  it('no legal move leaves the moving side in check', () => {
+    let s = createInitialState()
+    s = play(s, 'e2', 'e4'); s = play(s, 'd7', 'd5')
+    for (const m of getLegalMoves(s, parseSquare('e4'))) {
+      const after = applyMove(s, m)
+      expect(isInCheck(after, m.piece.color)).toBe(false)
+    }
+  })
+
+  it('king cannot step into an attacked square', () => {
+    const s = position('white', {
+      e1: { type: 'king',  color: 'white' },
+      d8: { type: 'rook',  color: 'black' },
+      h8: { type: 'king',  color: 'black' },
+    })
+    const t = getLegalMoves(s, parseSquare('e1')).map((m) => squareName(m.to))
+    expect(t).not.toContain('d1')
+    expect(t).not.toContain('d2')
+  })
+
+  it('all moves from any position leave own king safe', () => {
+    // Verify the invariant across a full game sequence.
+    let s = createInitialState()
+    const moves = [
+      ['e2','e4'],['e7','e5'],['g1','f3'],['b8','c6'],
+      ['f1','c4'],['f8','c5'],['d2','d3'],['d7','d6'],
+    ] as const
+    for (const [from, to] of moves) {
+      s = play(s, from, to)
+      for (const m of getLegalMoves(s, parseSquare(from))) {
+        const after = applyMove(s, m)
+        expect(isInCheck(after, m.piece.color)).toBe(false)
+      }
+    }
   })
 })
