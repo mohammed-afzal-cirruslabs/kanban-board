@@ -2,29 +2,13 @@
  * DatePicker — S-9
  *
  * Accessible, keyboard-navigable single-date picker. No external date library.
- *
- * **Modes**
- * - Uncontrolled: pass `defaultValue` (or nothing); the component manages state.
- * - Controlled: pass `value` + `onChange`; the parent owns the state.
- *
- * **Keyboard navigation** (WCAG 2.1 AA / APG 1.2 grid pattern)
- * | Key                        | Action                                      |
- * |----------------------------|---------------------------------------------|
- * | Arrow keys                 | Move focus by day                           |
- * | Home / End                 | First / last day of month                   |
- * | PageUp / PageDown          | Previous / next month                       |
- * | Shift + PageUp / PageDown  | Previous / next year                        |
- * | Enter / Space              | Select focused date                         |
- * | Escape                     | Close calendar, return focus to trigger     |
- *
- * **Localisation** — pass a BCP 47 `locale` prop (e.g. `"fr"`, `"de"`, `"ja"`).
- * Month names and day-of-week labels are generated via `Intl.DateTimeFormat`.
+ * Keyboard navigation follows WCAG 2.1 AA / APG 1.2 grid pattern.
+ * Localisation via BCP 47 locale prop (Intl.DateTimeFormat).
  */
 import React, { useState, useRef, useEffect, useCallback, useId } from 'react'
 import styles from './DatePicker.module.css'
 import type { DatePickerProps } from './types'
 
-// Re-export the interface so consumers can import from this file directly
 export type { DatePickerProps }
 
 // ─── Date utilities ───────────────────────────────────────────────────────────
@@ -53,23 +37,24 @@ function clampDate(d: Date, min: Date | null, max: Date | null): Date {
   return d
 }
 
+function normaliseDate(d: Date): Date {
+  const n = new Date(d)
+  n.setHours(0, 0, 0, 0)
+  return n
+}
+
 // ─── Localisation helpers ─────────────────────────────────────────────────────
 
-/** Short day-of-week labels via Intl (2 chars). Falls back to English. */
 function getDayLabels(locale = 'en'): string[] {
-  const base = new Date(2024, 0, 7) // Sunday
+  const base = new Date(2024, 0, 7)
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(base)
     d.setDate(7 + i)
-    try {
-      return d.toLocaleDateString(locale, { weekday: 'short' }).slice(0, 2)
-    } catch {
-      return ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'][i]
-    }
+    try { return d.toLocaleDateString(locale, { weekday: 'short' }).slice(0, 2) }
+    catch { return ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'][i] }
   })
 }
 
-/** Month name + year via Intl. Falls back to English. */
 function getMonthYearLabel(year: number, month: number, locale = 'en'): string {
   try {
     return new Date(year, month, 1).toLocaleDateString(locale, { month: 'long', year: 'numeric' })
@@ -80,7 +65,6 @@ function getMonthYearLabel(year: number, month: number, locale = 'en'): string {
   }
 }
 
-/** Display format for a selected date. Falls back to English. */
 function formatDisplay(s: string | undefined, locale = 'en'): string {
   if (!s) return ''
   const d = parseDate(s)
@@ -94,40 +78,36 @@ function formatDisplay(s: string | undefined, locale = 'en'): string {
   }
 }
 
+function resolveDefaultMonth(dm: string | Date | undefined): { year: number; month: number } | null {
+  if (!dm) return null
+  if (dm instanceof Date) return { year: dm.getFullYear(), month: dm.getMonth() }
+  const parts = dm.split('-')
+  if (parts.length >= 2) {
+    const year  = parseInt(parts[0], 10)
+    const month = parseInt(parts[1], 10) - 1
+    if (!isNaN(year) && !isNaN(month) && month >= 0 && month <= 11) return { year, month }
+  }
+  return null
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
-/**
- * Single-date picker.
- *
- * @example
- * ```tsx
- * // Uncontrolled
- * <DatePicker label="Due date" />
- *
- * // Controlled
- * const [date, setDate] = useState('')
- * <DatePicker label="Due date" value={date} onChange={setDate} />
- *
- * // With bounds
- * <DatePicker label="Due date" min="2024-01-01" max="2024-12-31" />
- *
- * // Localised
- * <DatePicker label="Fälligkeitsdatum" locale="de" />
- * ```
- */
 export function DatePicker({
   value,
   defaultValue,
   onChange,
   min,
   max,
+  minDate: minDateProp,
+  maxDate: maxDateProp,
+  defaultMonth,
   placeholder = 'Select a date',
   disabled = false,
   label,
   id: idProp,
   locale = 'en',
 }: DatePickerProps) {
-  const autoId = useId()
+  const autoId   = useId()
   const inputId  = idProp ?? `datepicker-${autoId}`
   const dialogId = `datepicker-dialog-${autoId}`
 
@@ -138,26 +118,37 @@ export function DatePicker({
   const [open, setOpen] = useState(false)
 
   const today = new Date(); today.setHours(0, 0, 0, 0)
-  const initialFocus = parseDate(selected) ?? today
+
+  const minDate: Date | null = minDateProp ? normaliseDate(minDateProp) : parseDate(min)
+  const maxDate: Date | null = maxDateProp ? normaliseDate(maxDateProp) : parseDate(max)
+
+  const initialView = (() => {
+    const fromSelected = parseDate(selected)
+    if (fromSelected) return { year: fromSelected.getFullYear(), month: fromSelected.getMonth() }
+    const fromDefault = resolveDefaultMonth(defaultMonth)
+    if (fromDefault) return fromDefault
+    return { year: today.getFullYear(), month: today.getMonth() }
+  })()
+
+  const initialFocus = parseDate(selected) ?? (() => {
+    const dm = resolveDefaultMonth(defaultMonth)
+    if (dm) { const d = new Date(dm.year, dm.month, 1); d.setHours(0,0,0,0); return d }
+    return today
+  })()
 
   const [focusedDate, setFocusedDate] = useState<Date>(initialFocus)
-  const [viewYear,    setViewYear]    = useState(initialFocus.getFullYear())
-  const [viewMonth,   setViewMonth]   = useState(initialFocus.getMonth())
-
-  const minDate = parseDate(min)
-  const maxDate = parseDate(max)
+  const [viewYear,    setViewYear]    = useState(initialView.year)
+  const [viewMonth,   setViewMonth]   = useState(initialView.month)
 
   const triggerRef = useRef<HTMLButtonElement>(null)
   const dialogRef  = useRef<HTMLDivElement>(null)
   const gridRef    = useRef<HTMLTableElement>(null)
 
-  // Sync view when controlled value changes
   useEffect(() => {
     const d = parseDate(selected)
     if (d) { setViewYear(d.getFullYear()); setViewMonth(d.getMonth()); setFocusedDate(d) }
   }, [selected])
 
-  // Close on outside click
   useEffect(() => {
     if (!open) return
     function handlePointerDown(e: PointerEvent) {
@@ -170,7 +161,6 @@ export function DatePicker({
     return () => document.removeEventListener('pointerdown', handlePointerDown)
   }, [open])
 
-  // Focus grid when dialog opens (roving tabindex cell first, then table fallback)
   useEffect(() => {
     if (open) {
       requestAnimationFrame(() => {
@@ -180,7 +170,6 @@ export function DatePicker({
     }
   }, [open])
 
-  // Re-focus active cell when displayed month/year changes
   useEffect(() => {
     if (!open) return
     requestAnimationFrame(() => {
@@ -197,16 +186,18 @@ export function DatePicker({
     triggerRef.current?.focus()
   }, [isControlled, onChange])
 
-  const prevMonth = () => {
+  const prevMonth = useCallback(() => {
     if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1) }
     else setViewMonth(m => m - 1)
-  }
-  const nextMonth = () => {
+  }, [viewMonth])
+
+  const nextMonth = useCallback(() => {
     if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1) }
     else setViewMonth(m => m + 1)
-  }
-  const prevYear = () => setViewYear(y => y - 1)
-  const nextYear = () => setViewYear(y => y + 1)
+  }, [viewMonth])
+
+  const prevYear = useCallback(() => setViewYear(y => y - 1), [])
+  const nextYear = useCallback(() => setViewYear(y => y + 1), [])
 
   const moveFocus = useCallback((delta: number) => {
     setFocusedDate(prev => {
@@ -219,6 +210,12 @@ export function DatePicker({
     })
   }, [minDate, maxDate])
 
+  function isDisabledDate(d: Date): boolean {
+    if (minDate && d < minDate) return true
+    if (maxDate && d > maxDate) return true
+    return false
+  }
+
   const handleGridKeyDown = useCallback((e: React.KeyboardEvent<HTMLTableElement>) => {
     switch (e.key) {
       case 'ArrowRight': e.preventDefault(); moveFocus(1);  break
@@ -226,32 +223,24 @@ export function DatePicker({
       case 'ArrowDown':  e.preventDefault(); moveFocus(7);  break
       case 'ArrowUp':    e.preventDefault(); moveFocus(-7); break
       case 'Home':       e.preventDefault()
-        setFocusedDate(prev => {
-          const d = new Date(prev.getFullYear(), prev.getMonth(), 1)
-          return clampDate(d, minDate, maxDate)
-        }); break
+        setFocusedDate(prev => clampDate(
+          new Date(prev.getFullYear(), prev.getMonth(), 1), minDate, maxDate
+        )); break
       case 'End':        e.preventDefault()
-        setFocusedDate(prev => {
-          const d = new Date(prev.getFullYear(), prev.getMonth(),
-                             daysInMonth(prev.getFullYear(), prev.getMonth()))
-          return clampDate(d, minDate, maxDate)
-        }); break
-      case 'PageUp':     e.preventDefault()
-        if (e.shiftKey) prevYear(); else prevMonth(); break
-      case 'PageDown':   e.preventDefault()
-        if (e.shiftKey) nextYear(); else nextMonth(); break
+        setFocusedDate(prev => clampDate(
+          new Date(prev.getFullYear(), prev.getMonth(),
+                   daysInMonth(prev.getFullYear(), prev.getMonth())),
+          minDate, maxDate
+        )); break
+      case 'PageUp':     e.preventDefault(); if (e.shiftKey) prevYear(); else prevMonth(); break
+      case 'PageDown':   e.preventDefault(); if (e.shiftKey) nextYear(); else nextMonth(); break
       case 'Enter':
       case ' ':          e.preventDefault()
         if (!isDisabledDate(focusedDate)) selectDate(focusedDate); break
       case 'Escape':     e.preventDefault(); setOpen(false); triggerRef.current?.focus(); break
     }
-  }, [focusedDate, moveFocus, minDate, maxDate, selectDate])
-
-  function isDisabledDate(d: Date): boolean {
-    if (minDate && d < minDate) return true
-    if (maxDate && d > maxDate) return true
-    return false
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusedDate, moveFocus, minDate, maxDate, selectDate, prevMonth, nextMonth, prevYear, nextYear])
 
   // Build calendar grid
   const totalDays   = daysInMonth(viewYear, viewMonth)
@@ -260,33 +249,26 @@ export function DatePicker({
     ...Array(startOffset).fill(null),
     ...Array.from({ length: totalDays }, (_, i) => i + 1),
   ]
-  // Pad to complete last row
   while (cells.length % 7 !== 0) cells.push(null)
-
   const weeks: (number | null)[][] = []
   for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7))
 
   const dayLabels      = getDayLabels(locale)
   const monthYearLabel = getMonthYearLabel(viewYear, viewMonth, locale)
   const displayValue   = formatDisplay(selected, locale)
-
-  // aria-label for trigger: use label prop if provided, else "Choose date"
   const triggerAriaLabel = label ?? 'Choose date'
-  // aria-label for dialog: always "Choose date" (spec §8)
-  const dialogAriaLabel = 'Choose date'
 
   return (
     <div className={styles.root}>
       {label && <label htmlFor={inputId} className={styles.label}>{label}</label>}
 
-      {/* Trigger button */}
       <button
         ref={triggerRef}
         id={inputId}
         type="button"
         disabled={disabled}
         aria-haspopup="dialog"
-        aria-expanded={open}
+        aria-expanded={open ? 'true' : 'false'}
         aria-controls={dialogId}
         aria-label={triggerAriaLabel}
         data-testid="datepicker-trigger"
@@ -303,65 +285,38 @@ export function DatePicker({
         </svg>
       </button>
 
-      {/* Calendar dialog */}
       {open && (
         <div
           ref={dialogRef}
           id={dialogId}
           role="dialog"
           aria-modal="true"
-          aria-label={dialogAriaLabel}
+          aria-label="Choose date"
           data-testid="datepicker-dialog"
           className={styles.dialog}
         >
-          {/* Month / year navigation */}
           <div className={styles.header}>
-            <button
-              type="button"
-              onClick={prevYear}
-              aria-label="Previous year"
-              data-testid="prev-year"
-              className={styles.navBtn}
-            >«</button>
-            <button
-              type="button"
-              onClick={prevMonth}
-              aria-label="Previous month"
-              data-testid="prev-month"
-              className={styles.navBtn}
-            >‹</button>
+            <button type="button" onClick={prevYear}  aria-label="Previous year"  data-testid="prev-year"  className={styles.navBtn}>«</button>
+            <button type="button" onClick={prevMonth} aria-label="Previous month" data-testid="prev-month" className={styles.navBtn}>‹</button>
             <span className={styles.monthYear} aria-live="polite" aria-atomic="true">
               {monthYearLabel}
             </span>
-            <button
-              type="button"
-              onClick={nextMonth}
-              aria-label="Next month"
-              data-testid="next-month"
-              className={styles.navBtn}
-            >›</button>
-            <button
-              type="button"
-              onClick={nextYear}
-              aria-label="Next year"
-              data-testid="next-year"
-              className={styles.navBtn}
-            >»</button>
+            <button type="button" onClick={nextMonth} aria-label="Next month" data-testid="next-month" className={styles.navBtn}>›</button>
+            <button type="button" onClick={nextYear}  aria-label="Next year"  data-testid="next-year"  className={styles.navBtn}>»</button>
           </div>
 
-          {/* Day grid */}
           <table
             ref={gridRef}
             role="grid"
             aria-label={monthYearLabel}
             className={styles.grid}
-            tabIndex={-1}
             onKeyDown={handleGridKeyDown}
+            tabIndex={-1}
           >
             <thead>
               <tr>
                 {dayLabels.map(d => (
-                  <th key={d} scope="col" abbr={d} className={styles.dayHeader}>{d}</th>
+                  <th key={d} scope="col" className={styles.dayHeader} aria-label={d}>{d}</th>
                 ))}
               </tr>
             </thead>
@@ -369,36 +324,34 @@ export function DatePicker({
               {weeks.map((week, wi) => (
                 <tr key={wi}>
                   {week.map((day, di) => {
-                    if (day === null) {
-                      return <td key={di} className={styles.empty} aria-hidden="true" />
-                    }
+                    if (day === null) return <td key={di} role="gridcell" className={styles.empty} />
                     const cellDate = new Date(viewYear, viewMonth, day)
-                    const dateStr  = toDateStr(cellDate)
-                    const isSelected  = dateStr === selected
-                    const isToday     = dateStr === toDateStr(today)
-                    const isDisabled  = isDisabledDate(cellDate)
-                    const isFocused   = toDateStr(focusedDate) === dateStr
-
+                    cellDate.setHours(0, 0, 0, 0)
+                    const cellStr    = toDateStr(cellDate)
+                    const isSelected = cellStr === selected
+                    const isToday    = cellStr === toDateStr(today)
+                    const isDisabled = isDisabledDate(cellDate)
+                    const isFocused  = toDateStr(focusedDate) === cellStr
+                    const cls = [
+                      styles.day,
+                      isSelected ? styles.daySelected : '',
+                      isToday    ? styles.dayToday    : '',
+                      isDisabled ? styles.dayDisabled : '',
+                    ].filter(Boolean).join(' ')
                     return (
                       <td key={di} role="gridcell">
                         <button
                           type="button"
+                          className={cls}
                           tabIndex={isFocused ? 0 : -1}
                           disabled={isDisabled}
-                          aria-selected={isSelected}
+                          aria-selected={isSelected ? 'true' : 'false'}
                           aria-disabled={isDisabled ? 'true' : 'false'}
                           aria-label={cellDate.toLocaleDateString(locale, {
                             weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
                           })}
-                          data-testid={`day-${dateStr}`}
-                          className={[
-                            styles.day,
-                            isSelected ? styles.daySelected : '',
-                            isToday    ? styles.dayToday    : '',
-                            isDisabled ? styles.dayDisabled : '',
-                          ].join(' ').trim()}
+                          data-testid={`day-${cellStr}`}
                           onClick={() => !isDisabled && selectDate(cellDate)}
-                          onFocus={() => setFocusedDate(cellDate)}
                         >
                           {day}
                         </button>
@@ -409,10 +362,32 @@ export function DatePicker({
               ))}
             </tbody>
           </table>
+
+          <div className={styles.footer}>
+            <button
+              type="button"
+              className={styles.todayBtn}
+              disabled={isDisabledDate(today)}
+              onClick={() => {
+                setViewYear(today.getFullYear())
+                setViewMonth(today.getMonth())
+                setFocusedDate(today)
+                selectDate(today)
+              }}
+            >Today</button>
+            <button
+              type="button"
+              className={styles.clearBtn}
+              onClick={() => {
+                if (!isControlled) setInternalValue('')
+                onChange?.('')
+                setOpen(false)
+                triggerRef.current?.focus()
+              }}
+            >Clear</button>
+          </div>
         </div>
       )}
     </div>
   )
 }
-
-export default DatePicker
