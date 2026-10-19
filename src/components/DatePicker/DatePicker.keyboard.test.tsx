@@ -4,7 +4,6 @@
  * Suite 6: Keyboard navigation
  * Suite 7: Navigation buttons
  */
-import React from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
