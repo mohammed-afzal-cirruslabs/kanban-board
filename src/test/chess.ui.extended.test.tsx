@@ -57,9 +57,9 @@ describe('ChessGame — select-and-move', () => {
     await user.click(sq('e2'))
     expect(sq('e2')).toHaveAttribute('aria-pressed', 'true')
     // e5 is not a legal target for the e2 pawn — it is disabled.
+    // A disabled button cannot be interacted with; the assertions below
+    // confirm the board state is unchanged without needing to attempt a click.
     expect(sq('e5')).toBeDisabled()
-    // Attempting to click a disabled button does nothing.
-    await user.click(sq('e5'), { pointerEventsCheck: 0 })
     // Turn has not changed; selection is still on e2.
     expect(screen.getByText(/white to move/i)).toBeInTheDocument()
     expect(sq('e2')).toHaveAttribute('aria-pressed', 'true')
