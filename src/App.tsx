@@ -23,13 +23,6 @@ import styles from './App.module.css'
 
 type View = 'kanban' | 'todo' | 'datepicker' | 'chess'
 
-const TITLES: Record<View, string> = {
-  kanban: 'Kanban Board',
-  todo: 'Todo List',
-  datepicker: 'Date Picker',
-  chess: 'Chess',
-}
-
 function findColumnByCardId(columns: Column[], cardId: string): Column | undefined {
   return columns.find((col) => col.cards.some((c) => c.id === cardId))
 }
@@ -120,10 +113,9 @@ function App() {
     )
   }
 
-  const views: View[] = ['kanban', 'todo', 'datepicker', 'chess']
-  const navLabels: Record<View, string> = {
-    kanban: 'Kanban',
-    todo: 'Todos',
+  const viewTitle: Record<View, string> = {
+    kanban: 'Kanban Board',
+    todo: 'Todo List',
     datepicker: 'Date Picker',
     chess: 'Chess',
   }
@@ -131,18 +123,36 @@ function App() {
   return (
     <div className={styles.app}>
       <header className={styles.appHeader}>
-        <h1 className={styles.appTitle}>{TITLES[view]}</h1>
+        <h1 className={styles.appTitle}>{viewTitle[view]}</h1>
         <nav className={styles.nav} aria-label="App navigation">
-          {views.map((v) => (
-            <button
-              key={v}
-              className={`${styles.navBtn} ${view === v ? styles.navBtnActive : ''}`}
-              onClick={() => setView(v)}
-              aria-current={view === v ? 'page' : undefined}
-            >
-              {navLabels[v]}
-            </button>
-          ))}
+          <button
+            className={`${styles.navBtn} ${view === 'kanban' ? styles.navBtnActive : ''}`}
+            onClick={() => setView('kanban')}
+            aria-current={view === 'kanban' ? 'page' : undefined}
+          >
+            Kanban
+          </button>
+          <button
+            className={`${styles.navBtn} ${view === 'todo' ? styles.navBtnActive : ''}`}
+            onClick={() => setView('todo')}
+            aria-current={view === 'todo' ? 'page' : undefined}
+          >
+            Todos
+          </button>
+          <button
+            className={`${styles.navBtn} ${view === 'datepicker' ? styles.navBtnActive : ''}`}
+            onClick={() => setView('datepicker')}
+            aria-current={view === 'datepicker' ? 'page' : undefined}
+          >
+            Date Picker
+          </button>
+          <button
+            className={`${styles.navBtn} ${view === 'chess' ? styles.navBtnActive : ''}`}
+            onClick={() => setView('chess')}
+            aria-current={view === 'chess' ? 'page' : undefined}
+          >
+            Chess
+          </button>
         </nav>
         {view === 'kanban' && (
           <p className={styles.hint}>
@@ -151,7 +161,7 @@ function App() {
         )}
       </header>
 
-      {view === 'kanban' && (
+      {view === 'kanban' ? (
         <main className={styles.board} role="main">
           <DndContext
             sensors={sensors}
@@ -171,11 +181,9 @@ function App() {
             </DragOverlay>
           </DndContext>
         </main>
-      )}
-
-      {view === 'todo' && <TodoPage />}
-
-      {view === 'datepicker' && (
+      ) : view === 'todo' ? (
+        <TodoPage />
+      ) : view === 'datepicker' ? (
         <main style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem', maxWidth: 640 }}>
           <section>
             <h2 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted, #888)' }}>
@@ -220,9 +228,7 @@ function App() {
             <DateRangePicker defaultValue={{ start: '2024-06-10', end: '2024-06-20' }} locale="fr" />
           </section>
         </main>
-      )}
-
-      {view === 'chess' && (
+      ) : (
         <main role="main">
           <ChessGame />
         </main>
