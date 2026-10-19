@@ -14,7 +14,7 @@
  * Suite 11: Clear button                 → DatePicker.edge.test.tsx
  * Suite 12: Today marker                 → DatePicker.edge.test.tsx
  */
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, vi } from 'vitest'
