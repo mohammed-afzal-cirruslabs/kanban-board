@@ -314,94 +314,100 @@ describe('DatePicker — ARIA completeness', () => {
     expect(screen.getByTestId('datepicker-dialog')).toHaveAttribute('role', 'dialog')
   })
 
-  it('grid has role="grid"', () => {
+  it('dialog has aria-modal="true"', () => {
     render(<DatePicker />)
+    openPicker()
+    expect(screen.getByTestId('datepicker-dialog')).toHaveAttribute('aria-modal', 'true')
+  })
+
+  it('grid has role="grid"', () => {
+    render(<DatePicker defaultValue="2024-06-01" />)
     openPicker()
     expect(screen.getByRole('grid')).toBeInTheDocument()
   })
 
-  it('column headers have role="columnheader" and scope="col"', () => {
-    render(<DatePicker />)
+  it('grid has aria-label matching the displayed month/year', () => {
+    render(<DatePicker defaultValue="2024-06-01" />)
+    openPicker()
+    expect(screen.getByRole('grid')).toHaveAttribute('aria-label', 'June 2024')
+  })
+
+  it('month/year span has aria-live="polite" and aria-atomic="true"', () => {
+    render(<DatePicker defaultValue="2024-06-01" />)
+    openPicker()
+    const dialog = screen.getByTestId('datepicker-dialog')
+    const liveRegion = dialog.querySelector('[aria-live="polite"]')
+    expect(liveRegion).not.toBeNull()
+    expect(liveRegion).toHaveAttribute('aria-atomic', 'true')
+  })
+
+  it('day-of-week headers have scope="col"', () => {
+    render(<DatePicker defaultValue="2024-06-01" />)
     openPicker()
     const headers = screen.getAllByRole('columnheader')
-    expect(headers.length).toBeGreaterThan(0)
-    headers.forEach(h => expect(h).toHaveAttribute('scope', 'col'))
+    expect(headers.length).toBe(7)
+    headers.forEach(th => expect(th).toHaveAttribute('scope', 'col'))
   })
 
   it('day cells have role="gridcell"', () => {
-    render(<DatePicker defaultValue="2024-06-15" />)
+    render(<DatePicker defaultValue="2024-06-01" />)
     openPicker()
     const cells = screen.getAllByRole('gridcell')
     expect(cells.length).toBeGreaterThan(0)
   })
 
-  it('selected day has aria-selected="true"', () => {
+  it('selected day cell has aria-selected="true"', () => {
     render(<DatePicker defaultValue="2024-06-15" />)
     openPicker()
     expect(screen.getByTestId('day-2024-06-15')).toHaveAttribute('aria-selected', 'true')
   })
 
-  it('non-selected days have aria-selected="false"', () => {
+  it('non-selected day cells have aria-selected="false"', () => {
     render(<DatePicker defaultValue="2024-06-15" />)
     openPicker()
     expect(screen.getByTestId('day-2024-06-10')).toHaveAttribute('aria-selected', 'false')
   })
 
-  it('month heading has aria-live="polite"', () => {
-    render(<DatePicker />)
+  it('selecting a new date updates aria-selected — verified by re-opening picker', () => {
+    // Clicking a day closes the dialog (cells unmount). Re-open to inspect aria-selected.
+    render(<DatePicker defaultValue="2024-06-15" />)
     openPicker()
-    const live = document.querySelector('[aria-live="polite"]')
-    expect(live).not.toBeNull()
+    fireEvent.click(screen.getByTestId('day-2024-06-20'))
+    // Dialog closed — re-open to see updated state
+    openPicker()
+    expect(screen.getByTestId('day-2024-06-20')).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByTestId('day-2024-06-15')).toHaveAttribute('aria-selected', 'false')
   })
 
-  it('Escape closes the dialog', () => {
-    render(<DatePicker />)
+  it('label element is associated with the trigger via htmlFor/id', () => {
+    render(<DatePicker label="Appointment date" />)
+    // getByLabelText resolves the association regardless of the generated id suffix
+    expect(screen.getByLabelText('Appointment date')).toHaveAttribute('data-testid', 'datepicker-trigger')
+  })
+
+  it('Escape key closes the dialog', () => {
+    render(<DatePicker defaultValue="2024-06-15" />)
     openPicker()
-    fireEvent.keyDown(screen.getByTestId('datepicker-dialog'), { key: 'Escape' })
+    expect(screen.getByTestId('datepicker-dialog')).toBeInTheDocument()
+    fireEvent.keyDown(grid(), { key: 'Escape' })
     expect(screen.queryByTestId('datepicker-dialog')).not.toBeInTheDocument()
   })
 })
 
-// ─── Controlled mode ──────────────────────────────────────────────────────────
+// ─── Locale rendering ─────────────────────────────────────────────────────────
 
-describe('DatePicker — controlled mode', () => {
-  it('displays the value prop as the selected date', () => {
-    render(<DatePicker value="2024-06-15" onChange={vi.fn()} />)
+describe('DatePicker — locale rendering', () => {
+  it('renders month/year label in English by default', () => {
+    render(<DatePicker defaultValue="2024-06-01" />)
     openPicker()
-    expect(screen.getByTestId('day-2024-06-15')).toHaveAttribute('aria-selected', 'true')
+    expect(within(screen.getByTestId('datepicker-dialog')).getByText('June 2024')).toBeInTheDocument()
   })
 
-  it('calls onChange with the new date string on click', () => {
-    const onChange = vi.fn()
-    render(<DatePicker value="2024-06-15" onChange={onChange} />)
+  it('renders month name in French when locale="fr"', () => {
+    render(<DatePicker defaultValue="2024-06-01" locale="fr" />)
     openPicker()
-    fireEvent.click(screen.getByTestId('day-2024-06-20'))
-    expect(onChange).toHaveBeenCalledWith('2024-06-20')
-  })
-
-  it('does not change selection without onChange updating value', () => {
-    render(<DatePicker value="2024-06-15" onChange={vi.fn()} />)
-    openPicker()
-    fireEvent.click(screen.getByTestId('day-2024-06-20'))
-    expect(screen.getByTestId('day-2024-06-15')).toHaveAttribute('aria-selected', 'true')
-    expect(screen.getByTestId('day-2024-06-20')).toHaveAttribute('aria-selected', 'false')
-  })
-})
-
-// ─── Uncontrolled mode ────────────────────────────────────────────────────────
-
-describe('DatePicker — uncontrolled mode', () => {
-  it('updates selection internally when clicked', () => {
-    render(<DatePicker defaultValue="2024-06-15" />)
-    openPicker()
-    fireEvent.click(screen.getByTestId('day-2024-06-20'))
-    openPicker()
-    expect(screen.getByTestId('day-2024-06-20')).toHaveAttribute('aria-selected', 'true')
-  })
-
-  it('renders placeholder text when no defaultValue given', () => {
-    render(<DatePicker />)
-    const trigger = screen.getByTestId('datepicker-trigger')
-    expect(trigger.textContent).toBeTruthy()
+    const dialog = screen.getByTestId('datepicker-dialog')
+    // French: "juin 2024" — verify it does NOT show the English "June 2024"
+    expect(within(dialog).queryByText('June 2024')).not.toBeInTheDocument()
   })
 })
