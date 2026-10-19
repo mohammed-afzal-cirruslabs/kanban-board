@@ -17,7 +17,7 @@ import { INITIAL_COLUMNS } from './data'
 import { KanbanColumn } from './components/KanbanColumn'
 import { KanbanCard } from './components/KanbanCard'
 import { TodoPage } from './components/TodoPage'
-import { DatePicker } from './components/DatePicker'
+import { DatePicker, DateRangePicker } from './components/DatePicker'
 import styles from './App.module.css'
 
 type View = 'kanban' | 'todo' | 'datepicker'
@@ -171,22 +171,48 @@ function App() {
       ) : view === 'todo' ? (
         <TodoPage />
       ) : (
-        <main style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <main style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem', maxWidth: 640 }}>
           <section>
-            <h2 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: 600 }}>Uncontrolled</h2>
+            <h2 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted, #888)' }}>
+              Single date — uncontrolled
+            </h2>
             <DatePicker placeholder="Select a date" />
           </section>
           <section>
-            <h2 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: 600 }}>With default value</h2>
+            <h2 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted, #888)' }}>
+              Single date — with default value
+            </h2>
             <DatePicker defaultValue="2024-06-15" />
           </section>
           <section>
-            <h2 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: 600 }}>With min / max</h2>
+            <h2 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted, #888)' }}>
+              Single date — with min / max
+            </h2>
             <DatePicker defaultValue="2024-06-15" min="2024-06-10" max="2024-06-25" />
           </section>
           <section>
-            <h2 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: 600 }}>Disabled</h2>
+            <h2 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted, #888)' }}>
+              Single date — disabled
+            </h2>
             <DatePicker defaultValue="2024-06-15" disabled />
+          </section>
+          <section>
+            <h2 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted, #888)' }}>
+              Date range — uncontrolled
+            </h2>
+            <DateRangePicker placeholder="Select a date range" />
+          </section>
+          <section>
+            <h2 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted, #888)' }}>
+              Date range — with default value
+            </h2>
+            <DateRangePicker defaultValue={{ start: '2024-06-10', end: '2024-06-20' }} />
+          </section>
+          <section>
+            <h2 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted, #888)' }}>
+              Date range — localised (fr)
+            </h2>
+            <DateRangePicker defaultValue={{ start: '2024-06-10', end: '2024-06-20' }} locale="fr" />
           </section>
         </main>
       )}
