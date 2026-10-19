@@ -159,8 +159,10 @@ describe('check and checkmate', () => {
   })
 
   it('reports check (not checkmate) when the king has a legal escape', () => {
-    // Black Ke8 is checked along the e-file by white Re1; it can step to d8/f8.
-    // Black also has a rook on a7, so there are non-king replies too.
+    // Black Ke8 is checked along the e-file by white Re1. The king may step to
+    // any adjacent square off the e-file that is not itself attacked:
+    // d7, d8, f7 and f8. Black also has a rook on a7, so there are non-king
+    // replies too — confirming it is check, not checkmate.
     const s = position('black', {
       e8: { type: 'king', color: 'black' },
       a7: { type: 'rook', color: 'black' },
@@ -170,7 +172,7 @@ describe('check and checkmate', () => {
     expect(isInCheck(s, 'black')).toBe(true)
     expect(s.status).toBe('check')
     const kingEscapes = getLegalMoves(s, parseSquare('e8')).map((m) => squareName(m.to)).sort()
-    expect(kingEscapes).toEqual(['d8', 'f8'])
+    expect(kingEscapes).toEqual(['d7', 'd8', 'f7', 'f8'])
     expect(getAllLegalMoves(s).length).toBeGreaterThan(0)
   })
 
