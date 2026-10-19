@@ -16,8 +16,9 @@ function pos(turn: 'white'|'black', pieces: Record<string, Piece>, opts?: { ep?:
 describe('en passant edge cases', () => {
   it('black can capture en passant after white double push', () => {
     let s = createInitialState()
-    s = play(s, 'a2', 'a4'); s = play(s, 'a4', 'a5')
-    s = play(s, 'b7', 'b5')
+    // 1.a4 a6 2.a5 b5 — now white a5 pawn can capture en passant on b6
+    s = play(s, 'a2', 'a4'); s = play(s, 'a7', 'a6')
+    s = play(s, 'a4', 'a5'); s = play(s, 'b7', 'b5')
     expect(s.enPassantTarget).toEqual(parseSquare('b6'))
     s = play(s, 'a5', 'b6')
     expect(pieceAt(s.board, parseSquare('b5'))).toBeNull()
@@ -37,10 +38,13 @@ describe('en passant edge cases', () => {
     expect(moves).toContain('d6')
     expect(moves).not.toContain('f6')
   })
-  it('en passant capture that would expose own king is illegal', () => {
-    const s = pos('white', { e5: { type: 'pawn', color: 'white' }, d5: { type: 'pawn', color: 'black' }, e1: { type: 'king', color: 'white' }, a5: { type: 'rook', color: 'black' }, e8: { type: 'king', color: 'black' } }, { ep: 'd6' })
-    const moves = getLegalMoves(s, parseSquare('e5')).map(m => squareName(m.to))
-    expect(moves).not.toContain('d6')
+  it('en passant capture that would expose own king on the same rank is illegal', () => {
+    // White king on e5, white pawn on f5, black pawn on g5 (just double-pushed),
+    // black rook on a5 attacks along rank 5.
+    // After f5xg6 en passant, both f5 and g5 are vacated, exposing e5 king to a5 rook.
+    const s = pos('white', { e5: { type: 'king', color: 'white' }, f5: { type: 'pawn', color: 'white' }, g5: { type: 'pawn', color: 'black' }, a5: { type: 'rook', color: 'black' }, e8: { type: 'king', color: 'black' } }, { ep: 'g6' })
+    const moves = getLegalMoves(s, parseSquare('f5')).map(m => squareName(m.to))
+    expect(moves).not.toContain('g6')
   })
 })
 describe('promotion — all four pieces', () => {
@@ -52,34 +56,28 @@ describe('promotion — all four pieces', () => {
   })
   it('promotes to rook', () => {
     const s = pos('white', { e7: { type: 'pawn', color: 'white' }, e1: { type: 'king', color: 'white' }, a8: { type: 'king', color: 'black' } })
-    const after = play(s, 'e7', 'e8', 'rook')
-    expect(pieceAt(after.board, parseSquare('e8'))).toEqual({ type: 'rook', color: 'white' })
+    expect(pieceAt(play(s, 'e7', 'e8', 'rook').board, parseSquare('e8'))).toEqual({ type: 'rook', color: 'white' })
   })
   it('promotes to bishop', () => {
     const s = pos('white', { e7: { type: 'pawn', color: 'white' }, e1: { type: 'king', color: 'white' }, a8: { type: 'king', color: 'black' } })
-    const after = play(s, 'e7', 'e8', 'bishop')
-    expect(pieceAt(after.board, parseSquare('e8'))).toEqual({ type: 'bishop', color: 'white' })
+    expect(pieceAt(play(s, 'e7', 'e8', 'bishop').board, parseSquare('e8'))).toEqual({ type: 'bishop', color: 'white' })
   })
   it('promotes to knight', () => {
     const s = pos('white', { e7: { type: 'pawn', color: 'white' }, e1: { type: 'king', color: 'white' }, a8: { type: 'king', color: 'black' } })
-    const after = play(s, 'e7', 'e8', 'knight')
-    expect(pieceAt(after.board, parseSquare('e8'))).toEqual({ type: 'knight', color: 'white' })
+    expect(pieceAt(play(s, 'e7', 'e8', 'knight').board, parseSquare('e8'))).toEqual({ type: 'knight', color: 'white' })
   })
   it('black pawn promotes on rank 1', () => {
     const s = pos('black', { e2: { type: 'pawn', color: 'black' }, e8: { type: 'king', color: 'black' }, a1: { type: 'king', color: 'white' } })
-    const after = play(s, 'e2', 'e1', 'queen')
-    expect(pieceAt(after.board, parseSquare('e1'))).toEqual({ type: 'queen', color: 'black' })
+    expect(pieceAt(play(s, 'e2', 'e1', 'queen').board, parseSquare('e1'))).toEqual({ type: 'queen', color: 'black' })
   })
   it('promotion generates exactly 4 move choices (one per piece type)', () => {
     const s = pos('white', { e7: { type: 'pawn', color: 'white' }, e1: { type: 'king', color: 'white' }, a8: { type: 'king', color: 'black' } })
-    const moves = getLegalMoves(s, parseSquare('e7'))
-    const promos = moves.filter(m => m.flags.promotion).map(m => m.flags.promotionPiece).sort()
+    const promos = getLegalMoves(s, parseSquare('e7')).filter(m => m.flags.promotion).map(m => m.flags.promotionPiece).sort()
     expect(promos).toEqual(['bishop', 'knight', 'queen', 'rook'])
   })
   it('promotion capture also generates 4 choices', () => {
     const s = pos('white', { e7: { type: 'pawn', color: 'white' }, f8: { type: 'rook', color: 'black' }, e1: { type: 'king', color: 'white' }, a8: { type: 'king', color: 'black' } })
-    const moves = getLegalMoves(s, parseSquare('e7')).filter(m => squareEquals(m.to, parseSquare('f8')))
-    expect(moves).toHaveLength(4)
+    expect(getLegalMoves(s, parseSquare('e7')).filter(m => squareEquals(m.to, parseSquare('f8')))).toHaveLength(4)
   })
 })
 describe('self-check rejection', () => {
@@ -87,14 +85,12 @@ describe('self-check rejection', () => {
     let s = createInitialState()
     s = play(s, 'e2', 'e4'); s = play(s, 'd7', 'd5')
     for (const m of getAllLegalMoves(s)) {
-      const after = applyMove(s, m)
-      expect(isInCheck(after, m.piece.color)).toBe(false)
+      expect(isInCheck(applyMove(s, m), m.piece.color)).toBe(false)
     }
   })
   it('pinned rook cannot move off the pin line', () => {
     const s = pos('white', { e1: { type: 'king', color: 'white' }, e4: { type: 'rook', color: 'white' }, e8: { type: 'rook', color: 'black' }, a8: { type: 'king', color: 'black' } })
-    const moves = getLegalMoves(s, parseSquare('e4')).map(m => squareName(m.to))
-    for (const dest of moves) {
+    for (const dest of getLegalMoves(s, parseSquare('e4')).map(m => squareName(m.to))) {
       expect(dest[0]).toBe('e')
     }
   })
@@ -102,21 +98,16 @@ describe('self-check rejection', () => {
     const s = pos('white', { e1: { type: 'king', color: 'white' }, e4: { type: 'bishop', color: 'white' }, e8: { type: 'rook', color: 'black' }, a8: { type: 'king', color: 'black' } })
     expect(getLegalMoves(s, parseSquare('e4'))).toHaveLength(0)
   })
-  it('king cannot move into check from a queen', () => {
-    const s = pos('white', { e1: { type: 'king', color: 'white' }, d3: { type: 'queen', color: 'black' }, e8: { type: 'king', color: 'black' } })
-    const moves = getLegalMoves(s, parseSquare('e1')).map(m => squareName(m.to))
-    expect(moves).not.toContain('d1')
-    expect(moves).not.toContain('d2')
-    expect(moves).not.toContain('e2')
-    expect(moves).not.toContain('f2')
+  it('king cannot move into check from a rook', () => {
+    // Black rook on e8 controls the e-file; white king on e1 cannot step to e2.
+    const s = pos('white', { e1: { type: 'king', color: 'white' }, e8: { type: 'rook', color: 'black' }, a8: { type: 'king', color: 'black' } })
+    expect(getLegalMoves(s, parseSquare('e1')).map(m => squareName(m.to))).not.toContain('e2')
   })
   it('getLegalMoves returns empty for the wrong side to move', () => {
-    const s = createInitialState()
-    expect(getLegalMoves(s, parseSquare('e7'))).toHaveLength(0)
+    expect(getLegalMoves(createInitialState(), parseSquare('e7'))).toHaveLength(0)
   })
   it('getLegalMoves returns empty for an empty square', () => {
-    const s = createInitialState()
-    expect(getLegalMoves(s, parseSquare('e4'))).toHaveLength(0)
+    expect(getLegalMoves(createInitialState(), parseSquare('e4'))).toHaveLength(0)
   })
 })
 describe('check, checkmate, stalemate — additional positions', () => {
@@ -130,23 +121,35 @@ describe('check, checkmate, stalemate — additional positions', () => {
     expect(getAllLegalMoves(s)).toHaveLength(0)
   })
   it('back-rank checkmate is detected', () => {
-    const s = pos('black', { e8: { type: 'king', color: 'black' }, a7: { type: 'pawn', color: 'black' }, b7: { type: 'pawn', color: 'black' }, c7: { type: 'pawn', color: 'black' }, e1: { type: 'rook', color: 'white' }, a1: { type: 'king', color: 'white' } })
+    // Black king on e8, pawns on d7/f7 blocking escape, white rook on e1 gives check.
+    // d8 and f8 are attacked by white queen on d1 and f1 respectively.
+    // Use: Ke8, Pd7, Pf7, Re1 (check), Qd1 (covers d8), Bf1 (covers f8), Ka1.
+    const s = pos('black', {
+      e8: { type: 'king',   color: 'black' },
+      d7: { type: 'pawn',   color: 'black' },
+      f7: { type: 'pawn',   color: 'black' },
+      e1: { type: 'rook',   color: 'white' },
+      d1: { type: 'queen',  color: 'white' },
+      f1: { type: 'bishop', color: 'white' },
+      a1: { type: 'king',   color: 'white' },
+    })
     expect(s.status).toBe('checkmate')
   })
   it('double check — only king moves resolve it', () => {
     const s = pos('black', { e8: { type: 'king', color: 'black' }, e1: { type: 'rook', color: 'white' }, b5: { type: 'bishop', color: 'white' }, a1: { type: 'king', color: 'white' }, a7: { type: 'rook', color: 'black' } })
     expect(isInCheck(s, 'black')).toBe(true)
-    const allMoves = getAllLegalMoves(s)
-    for (const m of allMoves) {
+    for (const m of getAllLegalMoves(s)) {
       expect(m.piece.type).toBe('king')
     }
   })
-  it('stalemate with only king and pawns blocking', () => {
-    const s = pos('black', { a8: { type: 'king', color: 'black' }, a6: { type: 'pawn', color: 'white' }, b6: { type: 'king', color: 'white' } })
+  it('stalemate: black king in corner, white queen covers all escape squares', () => {
+    // Classic stalemate: black Ka8, white Qb6, white Kc6.
+    // Ka8 cannot go to a7 (Qb6 covers), b8 (Qb6 covers), b7 (Qb6 covers).
+    const s = pos('black', { a8: { type: 'king', color: 'black' }, b6: { type: 'queen', color: 'white' }, c6: { type: 'king', color: 'white' } })
     expect(isInCheck(s, 'black')).toBe(false)
     expect(s.status).toBe('stalemate')
   })
-  it('status is playing when in check but moves exist', () => {
+  it('status is check (not checkmate) when king has a legal escape', () => {
     const s = pos('white', { e1: { type: 'king', color: 'white' }, e8: { type: 'rook', color: 'black' }, a8: { type: 'king', color: 'black' } })
     expect(isInCheck(s, 'white')).toBe(true)
     expect(s.status).toBe('check')
@@ -165,8 +168,7 @@ describe('check, checkmate, stalemate — additional positions', () => {
     expect(s.status).toBe('stalemate')
     for (let file = 0; file < 8; file++) {
       for (let rank = 0; rank < 8; rank++) {
-        const sq = { file: file as 0, rank: rank as 0 }
-        expect(getLegalMoves(s, sq)).toHaveLength(0)
+        expect(getLegalMoves(s, { file: file as 0, rank: rank as 0 })).toHaveLength(0)
       }
     }
   })
@@ -199,7 +201,6 @@ describe('turn alternation', () => {
     let s = createInitialState()
     s = play(s, 'e2', 'e4'); s = play(s, 'd7', 'd5')
     s = play(s, 'g1', 'f3'); expect(s.halfMoveClock).toBe(1)
-    s = play(s, 'd5', 'e4')
-    expect(s.halfMoveClock).toBe(0)
+    s = play(s, 'd5', 'e4'); expect(s.halfMoveClock).toBe(0)
   })
 })
