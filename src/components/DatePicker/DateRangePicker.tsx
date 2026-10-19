@@ -324,112 +324,90 @@ export function DateRangePicker({
       if (
         dialogRef.current  && !dialogRef.current.contains(e.target as Node) &&
         triggerRef.current && !triggerRef.current.contains(e.target as Node)
-      ) {
-        setOpen(false)
-        setPicking(null)
-      }
+      ) { setOpen(false) }
     }
     document.addEventListener('pointerdown', handlePointerDown)
     return () => document.removeEventListener('pointerdown', handlePointerDown)
   }, [open])
 
-  // Focus grid on open
+  // Focus first focusable cell when dialog opens
   useEffect(() => {
-    if (open) requestAnimationFrame(() => {
-      gridRef.current?.querySelector<HTMLElement>('[tabindex="0"]')?.focus()
-    })
+    if (open) {
+      requestAnimationFrame(() => {
+        const cell = gridRef.current?.querySelector<HTMLElement>('[tabindex="0"]')
+        if (cell) { cell.focus() } else { gridRef.current?.focus() }
+      })
+    }
   }, [open])
 
-  // Re-focus grid when month/year changes
-  useEffect(() => {
-    if (!open) return
-    requestAnimationFrame(() => {
-      gridRef.current?.querySelector<HTMLElement>('[tabindex="0"]')?.focus()
-    })
-  }, [viewMonth, viewYear, open])
+  const handleClose = () => {
+    setOpen(false); setPicking(null); setHoverDate(null)
+    requestAnimationFrame(() => triggerRef.current?.focus())
+  }
 
-  const handleDayClick = useCallback((d: Date) => {
+  const handleDayClick = (d: Date) => {
+    const ds = toDateStr(d)
     if (!picking) {
       // First click — set start
+      const newRange: DateRange = { start: ds }
+      if (!isControlled) setInternalRange(newRange)
+      onChange?.(newRange)
       setPicking(d)
-      const partial: DateRange = { start: toDateStr(d) }
-      if (!isControlled) setInternalRange(partial)
-      onChange?.(partial)
     } else {
-      // Second click — set end (or reset if before start)
-      let start = picking
-      let end   = d
-      if (end < start) { start = d; end = picking }
-      const complete: DateRange = { start: toDateStr(start), end: toDateStr(end) }
-      if (!isControlled) setInternalRange(complete)
-      onChange?.(complete)
-      setPicking(null)
-      setOpen(false)
-      triggerRef.current?.focus()
+      // Second click — set end (or reset if earlier than start)
+      const startStr = toDateStr(picking)
+      if (ds < startStr) {
+        // Reset: new start
+        const newRange: DateRange = { start: ds }
+        setPicking(d)
+        if (!isControlled) setInternalRange(newRange)
+        onChange?.(newRange)
+        return
+      }
+      const newRange: DateRange = { start: startStr, end: ds }
+      if (!isControlled) setInternalRange(newRange)
+      onChange?.(newRange)
+      setPicking(null); setHoverDate(null); setOpen(false)
     }
-  }, [picking, isControlled, onChange])
-
-  const handleFocusDate = useCallback((d: Date) => {
-    const c = clampDate(d, minDate, maxDate)
-    setFocusedDate(c)
-    setViewYear(c.getFullYear())
-    setViewMonth(c.getMonth())
-  }, [minDate, maxDate])
-
-  const prevMonth = () => { if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1) } else setViewMonth(m => m - 1) }
-  const nextMonth = () => { if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1) } else setViewMonth(m => m + 1) }
-  const prevYear  = () => setViewYear(y => y - 1)
-  const nextYear  = () => setViewYear(y => y + 1)
-
-  const handleClose = () => {
-    setOpen(false)
-    setPicking(null)
-    triggerRef.current?.focus()
   }
 
-  const handleClear = () => {
-    if (!isControlled) setInternalRange(undefined)
-    onChange?.({ start: '' })
-    setPicking(null)
-    setOpen(false)
-    triggerRef.current?.focus()
-  }
+  const handlePrevMonth = () => setViewMonth(m => { if (m === 0) { setViewYear(y => y - 1); return 11 } return m - 1 })
+  const handleNextMonth = () => setViewMonth(m => { if (m === 11) { setViewYear(y => y + 1); return 0 } return m + 1 })
+  const handlePrevYear  = () => setViewYear(y => y - 1)
+  const handleNextYear  = () => setViewYear(y => y + 1)
 
-  // Trigger display text
-  const triggerText = (): React.ReactNode => {
-    if (!range?.start) return <span className={styles.placeholder}>{placeholder}</span>
-    const startFmt = formatDisplay(range.start, locale)
-    const endFmt   = range.end ? formatDisplay(range.end, locale) : '…'
-    return <span className={styles.triggerText}>{startFmt} – {endFmt}</span>
-  }
+  const rangeStart = parseDate(range?.start) ?? picking
+  const rangeEnd   = parseDate(range?.end)
 
-  // Instruction text shown inside the dialog
-  const instruction = picking
-    ? 'Now click an end date'
-    : (range?.start && !range.end ? 'Click an end date' : 'Click a start date')
+  const triggerText = (() => {
+    if (range?.start && range?.end) return `${formatDisplay(range.start, locale)} \u2013 ${formatDisplay(range.end, locale)}`
+    if (range?.start) return formatDisplay(range.start, locale)
+    return null
+  })()
 
   return (
     <div className={styles.root} data-testid="daterangepicker">
       {label && <label htmlFor={inputId} className={styles.label}>{label}</label>}
-
       <button
         ref={triggerRef}
         id={inputId}
         type="button"
-        aria-label={label ?? 'Choose date range'}
+        className={`${styles.trigger}${open ? ` ${styles.triggerOpen}` : ''}`}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={dialogId}
+        aria-label="Choose date range"
         disabled={disabled}
-        className={styles.trigger}
+        data-testid="drp-trigger"
         onClick={() => !disabled && setOpen(o => !o)}
-        data-testid="daterangepicker-trigger"
       >
-        {triggerText()}
-        <svg className={styles.icon} aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <rect x="1" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/>
-          <path d="M1 7h14" stroke="currentColor" strokeWidth="1.5"/>
-          <path d="M5 1v4M11 1v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        <span className={styles.triggerText}>
+          {triggerText ?? placeholder}
+        </span>
+        <svg aria-hidden="true" className={styles.icon} width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="1" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M1 7h14" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M5 1v4M11 1v4" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5" />
         </svg>
       </button>
 
@@ -441,47 +419,31 @@ export function DateRangePicker({
           aria-modal="true"
           aria-label="Choose date range"
           className={styles.dialog}
-          data-testid="daterangepicker-dialog"
+          data-testid="drp-dialog"
         >
-          <p className={styles.instruction} aria-live="polite" aria-atomic="true">
-            {instruction}
-          </p>
-
           <Calendar
             viewYear={viewYear}
             viewMonth={viewMonth}
             focusedDate={focusedDate}
-            rangeStart={parseDate(picking ? toDateStr(picking) : range?.start)}
-            rangeEnd={picking ? null : parseDate(range?.end)}
+            rangeStart={rangeStart}
+            rangeEnd={rangeEnd}
             hoverDate={hoverDate}
             minDate={minDate}
             maxDate={maxDate}
             locale={locale}
             onDayClick={handleDayClick}
             onDayHover={setHoverDate}
-            onFocusDate={handleFocusDate}
-            onPrevMonth={prevMonth}
-            onNextMonth={nextMonth}
-            onPrevYear={prevYear}
-            onNextYear={nextYear}
+            onFocusDate={setFocusedDate}
+            onPrevMonth={handlePrevMonth}
+            onNextMonth={handleNextMonth}
+            onPrevYear={handlePrevYear}
+            onNextYear={handleNextYear}
             onClose={handleClose}
             gridRef={gridRef}
+            testIdPrefix="drp-"
           />
-
-          <div className={styles.footer}>
-            <button
-              type="button"
-              className={styles.clearBtn}
-              onClick={handleClear}
-              data-testid="drp-clear-btn"
-            >
-              Clear
-            </button>
-          </div>
         </div>
       )}
     </div>
   )
 }
-
-export default DateRangePicker
