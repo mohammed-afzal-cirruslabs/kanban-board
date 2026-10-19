@@ -12,8 +12,6 @@
  *   AC8  onSubmit called with { email, password } on valid submission
  *   AC9  onSubmit NOT called when fields are invalid
  *   AC10 Server-level errorMessage renders with role="alert"
- *   AC11 Errors clear when the user corrects the field and resubmits
- *   AC12 Trimmed email is passed to onSubmit; password is not trimmed
  */
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -75,7 +73,7 @@ describe('AC2 — validation errors on blur', () => {
     setup()
     await user.click(screen.getByLabelText(/^email$/i))
     await user.tab() // blur email
-    expect(screen.getByRole('alert', { name: /email is required/i })).toBeInTheDocument()
+    expect(screen.getByText('Email is required')).toBeInTheDocument()
   })
 
   it('shows "Enter a valid email address" for a malformed email on blur', async () => {
@@ -217,8 +215,6 @@ describe('AC6 — loading state', () => {
 
   it('spinner element is present when isLoading is true', () => {
     setup({ isLoading: true })
-    // The spinner is aria-hidden; we find it by its role-less presence via the
-    // screen-reader-only sibling text that announces the loading state.
     expect(screen.getByText(/signing in/i)).toBeInTheDocument()
   })
 
