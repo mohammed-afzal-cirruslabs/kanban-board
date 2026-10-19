@@ -121,18 +121,18 @@ describe('check, checkmate, stalemate — additional positions', () => {
     expect(getAllLegalMoves(s)).toHaveLength(0)
   })
   it('back-rank checkmate is detected', () => {
-    // Black Kh8, own Rg8 (blocks g8), own Pg7 (blocks g7), own Ph7 (blocks h7).
-    // White Rh1 gives check on the h-file. The king has no escape square and no
-    // black piece can interpose or capture the rook on h1. Verified checkmate.
+    // Black Ka8, own Pa7 (blocks a7), own Pb7 (blocks b7).
+    // White Rh8 delivers check along rank 8. Ka8 cannot go to b8 (Rh8 covers),
+    // a7 (own pawn) or b7 (own pawn). No black piece can interpose or capture.
     const s = pos('black', {
-      h8: { type: 'king',  color: 'black' },
-      g8: { type: 'rook',  color: 'black' },
-      g7: { type: 'pawn',  color: 'black' },
-      h7: { type: 'pawn',  color: 'black' },
-      h1: { type: 'rook',  color: 'white' },
+      a8: { type: 'king',  color: 'black' },
+      a7: { type: 'pawn',  color: 'black' },
+      b7: { type: 'pawn',  color: 'black' },
+      h8: { type: 'rook',  color: 'white' },
       a1: { type: 'king',  color: 'white' },
     })
     expect(s.status).toBe('checkmate')
+    expect(getAllLegalMoves(s)).toHaveLength(0)
   })
   it('double check — only king moves resolve it', () => {
     const s = pos('black', { e8: { type: 'king', color: 'black' }, e1: { type: 'rook', color: 'white' }, b5: { type: 'bishop', color: 'white' }, a1: { type: 'king', color: 'white' }, a7: { type: 'rook', color: 'black' } })
