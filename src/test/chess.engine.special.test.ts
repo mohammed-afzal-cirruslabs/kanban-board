@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { applyMove, computeStatus, createInitialState, getAllLegalMoves, getLegalMoves, isInCheck, parseSquare, pieceAt, squareName, squareEquals } from '../chess/engine'
+import { applyMove, computeStatus, getLegalMoves, parseSquare, pieceAt, squareName, squareEquals } from '../chess/engine'
 import type { GameState, Piece, Square } from '../chess/engine'
 function play(s: GameState, f: string, t: string, p?: string): GameState {
   const m = getLegalMoves(s, parseSquare(f)).find(mv => squareEquals(mv.to, parseSquare(t)) && (p == null || mv.flags.promotionPiece === p))
