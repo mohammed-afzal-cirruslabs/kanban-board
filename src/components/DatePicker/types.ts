@@ -1,3 +1,5 @@
+// src/components/DatePicker/types.ts
+
 /**
  * DatePicker — shared TypeScript types (S-9)
  *
@@ -5,7 +7,7 @@
  *   import type { DatePickerProps, DateRangePickerProps, DateRange } from './DatePicker'
  */
 
-// ─── Single-date picker ──────────────────────────────────────────────────────
+// ─── Single-date picker ────────────────────────────────────────────────────────
 
 /**
  * Props for the single-date `DatePicker` component.
@@ -37,16 +39,40 @@ export interface DatePickerProps {
   onChange?: (value: string) => void
 
   /**
-   * Earliest selectable date — ISO 8601 string.
+   * Earliest selectable date — ISO 8601 string (`"YYYY-MM-DD"`).
    * Dates before this value are rendered as disabled.
+   * Use `minDate` to pass a `Date` object instead.
    */
   min?: string
 
   /**
-   * Latest selectable date — ISO 8601 string.
+   * Latest selectable date — ISO 8601 string (`"YYYY-MM-DD"`).
    * Dates after this value are rendered as disabled.
+   * Use `maxDate` to pass a `Date` object instead.
    */
   max?: string
+
+  /**
+   * Earliest selectable date as a `Date` object.
+   * Takes precedence over `min` when both are provided.
+   */
+  minDate?: Date
+
+  /**
+   * Latest selectable date as a `Date` object.
+   * Takes precedence over `max` when both are provided.
+   */
+  maxDate?: Date
+
+  /**
+   * The month to display when the calendar first opens, when no `value`
+   * or `defaultValue` is set.
+   *
+   * Accepts:
+   * - An ISO month string `"YYYY-MM"` (e.g. `"2024-06"`)
+   * - A `Date` object (the month of that date is used)
+   */
+  defaultMonth?: string | Date
 
   /** Placeholder text shown in the trigger when no date is selected. */
   placeholder?: string
@@ -73,7 +99,7 @@ export interface DatePickerProps {
   locale?: string
 }
 
-// ─── Date range ──────────────────────────────────────────────────────────────
+// ─── Date range ────────────────────────────────────────────────────────────────
 
 /**
  * A date range with an optional end date.
@@ -82,6 +108,7 @@ export interface DatePickerProps {
 export interface DateRange {
   /** Range start date — ISO 8601 string. Always present once the user picks a start. */
   start: string
+
   /**
    * Range end date — ISO 8601 string.
    * `undefined` while the user is selecting (only start has been clicked).
@@ -89,7 +116,7 @@ export interface DateRange {
   end?: string
 }
 
-// ─── Date-range picker ───────────────────────────────────────────────────────
+// ─── Date-range picker ─────────────────────────────────────────────────────────
 
 /**
  * Props for the `DateRangePicker` component.
