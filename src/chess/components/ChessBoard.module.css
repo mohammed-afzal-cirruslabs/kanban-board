@@ -1,0 +1,52 @@
+/*
+ * ChessBoard — grid layout. Tokens only. The board is a square that scales to
+ * its container up to a comfortable max, with a 1px token border and the
+ * resting card elevation.
+ */
+
+.board {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+  background: var(--color-surface-0);
+}
+
+.row {
+  display: flex;
+  flex: 1 1 0;
+}
+
+.cell {
+  position: relative;
+  flex: 1 1 0;
+}
+
+/* ─── Coordinate labels ──────────────────────────────────────────────────── */
+.rankLabel,
+.fileLabel {
+  position: absolute;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+  opacity: 0.8;
+  pointer-events: none;
+  user-select: none;
+  z-index: 3;
+}
+
+.rankLabel {
+  top: var(--space-1);
+  left: var(--space-1);
+}
+
+.fileLabel {
+  bottom: var(--space-1);
+  right: var(--space-1);
+}
