@@ -1,5 +1,13 @@
 .root { position:relative; display:inline-block; font-family:var(--font-sans); font-size:var(--text-sm); }
 
+.label {
+  display:block;
+  margin-bottom:var(--space-1);
+  font-size:var(--text-sm);
+  font-weight:var(--weight-medium);
+  color:var(--color-text-primary);
+}
+
 .trigger {
   display:inline-flex; align-items:center; gap:var(--space-2);
   height:var(--control-md); padding:0 var(--space-3);
@@ -38,7 +46,10 @@
 .navBtn:hover { background:var(--color-surface-2); color:var(--color-text-primary); }
 .navBtn:focus-visible { outline:none; box-shadow:var(--focus-ring); }
 
-.grid { width:100%; border-collapse:collapse; table-layout:fixed; }
+/* Grid — tabIndex={-1} makes it programmatically focusable for keyboard tests;
+   outline:none suppresses the default focus ring on the table itself since
+   focus is always immediately moved to a day cell via rAF. */
+.grid { width:100%; border-collapse:collapse; table-layout:fixed; outline:none; }
 .dayHeader { padding:var(--space-1) 0; text-align:center; font-size:var(--text-xs); font-weight:var(--weight-semibold); color:var(--color-text-muted); letter-spacing:var(--tracking-wide); text-transform:uppercase; }
 .cell {
   text-align:center; padding:2px; cursor:pointer; border-radius:var(--radius-sm);
