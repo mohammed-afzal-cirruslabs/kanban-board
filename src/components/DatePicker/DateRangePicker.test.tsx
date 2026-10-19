@@ -20,7 +20,7 @@ async function openPickerAsync(user: ReturnType<typeof userEvent.setup>) {
 }
 
 async function clickDay(user: ReturnType<typeof userEvent.setup>, dateStr: string) {
-  await user.click(screen.getByTestId(`drp-day-${dateStr}`))
+  await user.click(screen.getByTestId(`day-${dateStr}`))
 }
 
 describe('DateRangePicker — rendering', () => {
@@ -104,7 +104,7 @@ describe('DateRangePicker — range selection', () => {
     render(<DateRangePicker defaultValue={{ start: '2024-06-01' }} />)
     await openPickerAsync(user)
     await clickDay(user, '2024-06-05')
-    expect(screen.getByTestId('drp-day-2024-06-05')).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByTestId('day-2024-06-05')).toHaveAttribute('aria-selected', 'true')
   })
   it('second click sets the end date and closes the dialog', async () => {
     const user = userEvent.setup()
@@ -128,7 +128,7 @@ describe('DateRangePicker — range selection', () => {
     await openPickerAsync(user)
     await clickDay(user, '2024-06-10')
     await openPickerAsync(user)
-    expect(screen.getByTestId('drp-day-2024-06-10')).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByTestId('day-2024-06-10')).toHaveAttribute('aria-selected', 'true')
   })
   it('end cell has aria-selected=true after full range selection', async () => {
     const user = userEvent.setup()
@@ -137,7 +137,7 @@ describe('DateRangePicker — range selection', () => {
     await clickDay(user, '2024-06-05')
     await clickDay(user, '2024-06-20')
     await openPickerAsync(user)
-    expect(screen.getByTestId('drp-day-2024-06-20')).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByTestId('day-2024-06-20')).toHaveAttribute('aria-selected', 'true')
   })
   it('trigger shows updated range after selection', async () => {
     const user = userEvent.setup()
