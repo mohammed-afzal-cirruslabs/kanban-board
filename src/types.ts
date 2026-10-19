@@ -11,3 +11,9 @@ export interface Column {
 }
 
 export type ColumnId = string
+
+export interface Todo {
+  id: string
+  title: string
+  completed: boolean
+}
