@@ -17,9 +17,16 @@ import { INITIAL_COLUMNS } from './data'
 import { KanbanColumn } from './components/KanbanColumn'
 import { KanbanCard } from './components/KanbanCard'
 import { TodoPage } from './components/TodoPage'
+import { ChessGame } from './chess/components/ChessGame'
 import styles from './App.module.css'
 
-type View = 'kanban' | 'todo'
+type View = 'kanban' | 'todo' | 'chess'
+
+const TITLES: Record<View, string> = {
+  kanban: 'Kanban Board',
+  todo: 'Todo List',
+  chess: 'Chess',
+}
 
 function findColumnByCardId(columns: Column[], cardId: string): Column | undefined {
   return columns.find((col) => col.cards.some((c) => c.id === cardId))
@@ -111,27 +118,28 @@ function App() {
     )
   }
 
+  const views: View[] = ['kanban', 'todo', 'chess']
+  const navLabels: Record<View, string> = {
+    kanban: 'Kanban',
+    todo: 'Todos',
+    chess: 'Chess',
+  }
+
   return (
     <div className={styles.app}>
       <header className={styles.appHeader}>
-        <h1 className={styles.appTitle}>
-          {view === 'kanban' ? 'Kanban Board' : 'Todo List'}
-        </h1>
+        <h1 className={styles.appTitle}>{TITLES[view]}</h1>
         <nav className={styles.nav} aria-label="App navigation">
-          <button
-            className={`${styles.navBtn} ${view === 'kanban' ? styles.navBtnActive : ''}`}
-            onClick={() => setView('kanban')}
-            aria-current={view === 'kanban' ? 'page' : undefined}
-          >
-            Kanban
-          </button>
-          <button
-            className={`${styles.navBtn} ${view === 'todo' ? styles.navBtnActive : ''}`}
-            onClick={() => setView('todo')}
-            aria-current={view === 'todo' ? 'page' : undefined}
-          >
-            Todos
-          </button>
+          {views.map((v) => (
+            <button
+              key={v}
+              className={`${styles.navBtn} ${view === v ? styles.navBtnActive : ''}`}
+              onClick={() => setView(v)}
+              aria-current={view === v ? 'page' : undefined}
+            >
+              {navLabels[v]}
+            </button>
+          ))}
         </nav>
         {view === 'kanban' && (
           <p className={styles.hint}>
@@ -140,7 +148,7 @@ function App() {
         )}
       </header>
 
-      {view === 'kanban' ? (
+      {view === 'kanban' && (
         <main className={styles.board} role="main">
           <DndContext
             sensors={sensors}
@@ -160,8 +168,14 @@ function App() {
             </DragOverlay>
           </DndContext>
         </main>
-      ) : (
-        <TodoPage />
+      )}
+
+      {view === 'todo' && <TodoPage />}
+
+      {view === 'chess' && (
+        <main role="main">
+          <ChessGame />
+        </main>
       )}
     </div>
   )
