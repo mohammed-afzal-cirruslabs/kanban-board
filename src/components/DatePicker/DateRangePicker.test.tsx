@@ -1,9 +1,7 @@
 /**
  * DateRangePicker — unit + integration tests, Part 1 (S-9)
  *
- * NOTE: This test suite has been superseded by src/test/daterangepicker.test.tsx
- * which uses the correct testids matching the component's actual rendered output.
- * The tests below have been updated to match the component.
+ * NOTE: testids updated to match the component's actual rendered output.
  *
  * Suite 1: Rendering
  * Suite 2: Open / Close
@@ -20,7 +18,7 @@ import type { DateRange } from './types'
 
 async function openPickerAsync(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByTestId('daterangepicker-trigger'))
-  return screen.getByRole('dialog')
+  return screen.getByTestId('daterangepicker-dialog')
 }
 
 async function clickDay(user: ReturnType<typeof userEvent.setup>, dateStr: string) {
@@ -38,7 +36,7 @@ describe('DateRangePicker — rendering', () => {
   })
   it('does not render the dialog initially', () => {
     render(<DateRangePicker />)
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('daterangepicker-dialog')).not.toBeInTheDocument()
   })
   it('renders trigger as disabled when disabled prop is true', () => {
     render(<DateRangePicker disabled />)
@@ -68,7 +66,7 @@ describe('DateRangePicker — open / close', () => {
     const user = userEvent.setup()
     render(<DateRangePicker />)
     await openPickerAsync(user)
-    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    expect(screen.getByTestId('daterangepicker-dialog')).toBeInTheDocument()
   })
   it('closes the calendar when trigger is clicked again', async () => {
     const user = userEvent.setup()
@@ -76,13 +74,13 @@ describe('DateRangePicker — open / close', () => {
     const trigger = screen.getByTestId('daterangepicker-trigger')
     await user.click(trigger)
     await user.click(trigger)
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('daterangepicker-dialog')).not.toBeInTheDocument()
   })
   it('does not open the calendar when disabled', async () => {
     const user = userEvent.setup()
     render(<DateRangePicker disabled />)
     await user.click(screen.getByTestId('daterangepicker-trigger'))
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('daterangepicker-dialog')).not.toBeInTheDocument()
   })
   it('sets aria-expanded=true on trigger when open', async () => {
     const user = userEvent.setup()
@@ -97,7 +95,7 @@ describe('DateRangePicker — open / close', () => {
     render(<DateRangePicker defaultValue={{ start: '2024-06-10' }} />)
     await openPickerAsync(user)
     await user.keyboard('{Escape}')
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('daterangepicker-dialog')).not.toBeInTheDocument()
     expect(screen.getByTestId('daterangepicker-trigger')).toHaveFocus()
   })
 })
@@ -116,7 +114,7 @@ describe('DateRangePicker — range selection', () => {
     await openPickerAsync(user)
     await clickDay(user, '2024-06-05')
     await clickDay(user, '2024-06-15')
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('daterangepicker-dialog')).not.toBeInTheDocument()
   })
   it('clicking a date earlier than current start resets start', async () => {
     const onChange = vi.fn()
