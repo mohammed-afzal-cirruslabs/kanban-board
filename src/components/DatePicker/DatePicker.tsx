@@ -8,14 +8,14 @@
  * - Controlled: pass `value` + `onChange`; the parent owns the state.
  *
  * **Keyboard navigation** (WCAG 2.1 AA / APG 1.2 grid pattern)
- * | Key | Action |
- * |-----|--------|
- * | Arrow keys | Move focus by day |
- * | Home / End | First / last day of month |
- * | PageUp / PageDown | Previous / next month |
- * | Shift + PageUp / PageDown | Previous / next year |
- * | Enter / Space | Select focused date |
- * | Escape | Close calendar, return focus to trigger |
+ * | Key                        | Action                                      |
+ * |----------------------------|---------------------------------------------|
+ * | Arrow keys                 | Move focus by day                           |
+ * | Home / End                 | First / last day of month                   |
+ * | PageUp / PageDown          | Previous / next month                       |
+ * | Shift + PageUp / PageDown  | Previous / next year                        |
+ * | Enter / Space              | Select focused date                         |
+ * | Escape                     | Close calendar, return focus to trigger     |
  *
  * **Localisation** — pass a BCP 47 `locale` prop (e.g. `"fr"`, `"de"`, `"ja"`).
  * Month names and day-of-week labels are generated via `Intl.DateTimeFormat`.
@@ -74,8 +74,8 @@ function getMonthYearLabel(year: number, month: number, locale = 'en'): string {
   try {
     return new Date(year, month, 1).toLocaleDateString(locale, { month: 'long', year: 'numeric' })
   } catch {
-    const months = ['January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December']
+    const months = ['January','February','March','April','May','June',
+                    'July','August','September','October','November','December']
     return `${months[month]} ${year}`
   }
 }
@@ -88,8 +88,8 @@ function formatDisplay(s: string | undefined, locale = 'en'): string {
   try {
     return d.toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' })
   } catch {
-    const months = ['January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December']
+    const months = ['January','February','March','April','May','June',
+                    'July','August','September','October','November','December']
     return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`
   }
 }
@@ -102,17 +102,17 @@ function formatDisplay(s: string | undefined, locale = 'en'): string {
  * @example
  * ```tsx
  * // Uncontrolled
- * <DatePicker placeholder="Select a date" />
+ * <DatePicker label="Due date" />
  *
  * // Controlled
  * const [date, setDate] = useState('')
- * <DatePicker value={date} onChange={setDate} />
+ * <DatePicker label="Due date" value={date} onChange={setDate} />
  *
  * // With bounds
- * <DatePicker min="2024-01-01" max="2024-12-31" />
+ * <DatePicker label="Due date" min="2024-01-01" max="2024-12-31" />
  *
  * // Localised
- * <DatePicker locale="fr" />
+ * <DatePicker label="Fälligkeitsdatum" locale="de" />
  * ```
  */
 export function DatePicker({
@@ -127,7 +127,7 @@ export function DatePicker({
   id: idProp,
   locale = 'en',
 }: DatePickerProps) {
-  const autoId   = useId()
+  const autoId = useId()
   const inputId  = idProp ?? `datepicker-${autoId}`
   const dialogId = `datepicker-dialog-${autoId}`
 
@@ -139,9 +139,10 @@ export function DatePicker({
 
   const today = new Date(); today.setHours(0, 0, 0, 0)
   const initialFocus = parseDate(selected) ?? today
+
   const [focusedDate, setFocusedDate] = useState<Date>(initialFocus)
-  const [viewYear,  setViewYear]  = useState(initialFocus.getFullYear())
-  const [viewMonth, setViewMonth] = useState(initialFocus.getMonth())
+  const [viewYear,    setViewYear]    = useState(initialFocus.getFullYear())
+  const [viewMonth,   setViewMonth]   = useState(initialFocus.getMonth())
 
   const minDate = parseDate(min)
   const maxDate = parseDate(max)
@@ -163,41 +164,28 @@ export function DatePicker({
       if (
         dialogRef.current  && !dialogRef.current.contains(e.target as Node) &&
         triggerRef.current && !triggerRef.current.contains(e.target as Node)
-      ) {
-        setOpen(false)
-      }
+      ) { setOpen(false) }
     }
     document.addEventListener('pointerdown', handlePointerDown)
     return () => document.removeEventListener('pointerdown', handlePointerDown)
   }, [open])
 
-  // Focus grid (table) when dialog opens so keyboard events land immediately.
-  // Individual day cells use roving tabindex; the table itself is the keyboard
-  // target until a cell receives focus via the rAF call below.
+  // Focus grid when dialog opens (roving tabindex cell first, then table fallback)
   useEffect(() => {
     if (open) {
-      // First try to focus the roving-tabindex cell; fall back to the grid table.
       requestAnimationFrame(() => {
         const cell = gridRef.current?.querySelector<HTMLElement>('[tabindex="0"]')
-        if (cell) {
-          cell.focus()
-        } else {
-          gridRef.current?.focus()
-        }
+        if (cell) { cell.focus() } else { gridRef.current?.focus() }
       })
     }
   }, [open])
 
-  // Re-focus the active cell when the displayed month/year changes
+  // Re-focus active cell when displayed month/year changes
   useEffect(() => {
     if (!open) return
     requestAnimationFrame(() => {
       const cell = gridRef.current?.querySelector<HTMLElement>('[tabindex="0"]')
-      if (cell) {
-        cell.focus()
-      } else {
-        gridRef.current?.focus()
-      }
+      if (cell) { cell.focus() } else { gridRef.current?.focus() }
     })
   }, [viewMonth, viewYear, open])
 
@@ -209,173 +197,211 @@ export function DatePicker({
     triggerRef.current?.focus()
   }, [isControlled, onChange])
 
-  const prevMonth = useCallback(() => {
+  const prevMonth = () => {
     if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1) }
     else setViewMonth(m => m - 1)
-  }, [viewMonth])
-
-  const nextMonth = useCallback(() => {
+  }
+  const nextMonth = () => {
     if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1) }
     else setViewMonth(m => m + 1)
-  }, [viewMonth])
+  }
+  const prevYear = () => setViewYear(y => y - 1)
+  const nextYear = () => setViewYear(y => y + 1)
 
-  const prevYear  = useCallback(() => setViewYear(y => y - 1), [])
-  const nextYear  = useCallback(() => setViewYear(y => y + 1), [])
-
-  const moveFocus = useCallback((d: Date) => {
-    const c = clampDate(d, minDate, maxDate)
-    setFocusedDate(c); setViewYear(c.getFullYear()); setViewMonth(c.getMonth())
+  const moveFocus = useCallback((delta: number) => {
+    setFocusedDate(prev => {
+      const next = new Date(prev)
+      next.setDate(next.getDate() + delta)
+      const clamped = clampDate(next, minDate, maxDate)
+      setViewYear(clamped.getFullYear())
+      setViewMonth(clamped.getMonth())
+      return clamped
+    })
   }, [minDate, maxDate])
 
-  // Shared keyboard handler used on both the grid <table> and the dialog <div>.
-  // Placing it on the dialog ensures Escape is caught even before rAF has moved
-  // focus into a day cell (e.g. when the dialog opens with no defaultValue and
-  // focus is still on the grid element itself).
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    const d = new Date(focusedDate)
+  const handleGridKeyDown = useCallback((e: React.KeyboardEvent<HTMLTableElement>) => {
     switch (e.key) {
-      case 'ArrowLeft':  e.preventDefault(); d.setDate(d.getDate() - 1); moveFocus(d); break
-      case 'ArrowRight': e.preventDefault(); d.setDate(d.getDate() + 1); moveFocus(d); break
-      case 'ArrowUp':    e.preventDefault(); d.setDate(d.getDate() - 7); moveFocus(d); break
-      case 'ArrowDown':  e.preventDefault(); d.setDate(d.getDate() + 7); moveFocus(d); break
-      case 'Home':       e.preventDefault(); d.setDate(1);               moveFocus(d); break
-      case 'End':        e.preventDefault(); d.setDate(daysInMonth(d.getFullYear(), d.getMonth())); moveFocus(d); break
-      case 'PageUp':     e.preventDefault(); e.shiftKey ? prevYear() : prevMonth(); break
-      case 'PageDown':   e.preventDefault(); e.shiftKey ? nextYear() : nextMonth(); break
-      case 'Enter': case ' ':
-        e.preventDefault()
-        if (!isDisabledDate(focusedDate)) selectDate(focusedDate)
-        break
-      case 'Escape':
-        e.preventDefault()
-        setOpen(false); triggerRef.current?.focus()
-        break
+      case 'ArrowRight': e.preventDefault(); moveFocus(1);  break
+      case 'ArrowLeft':  e.preventDefault(); moveFocus(-1); break
+      case 'ArrowDown':  e.preventDefault(); moveFocus(7);  break
+      case 'ArrowUp':    e.preventDefault(); moveFocus(-7); break
+      case 'Home':       e.preventDefault()
+        setFocusedDate(prev => {
+          const d = new Date(prev.getFullYear(), prev.getMonth(), 1)
+          return clampDate(d, minDate, maxDate)
+        }); break
+      case 'End':        e.preventDefault()
+        setFocusedDate(prev => {
+          const d = new Date(prev.getFullYear(), prev.getMonth(),
+                             daysInMonth(prev.getFullYear(), prev.getMonth()))
+          return clampDate(d, minDate, maxDate)
+        }); break
+      case 'PageUp':     e.preventDefault()
+        if (e.shiftKey) prevYear(); else prevMonth(); break
+      case 'PageDown':   e.preventDefault()
+        if (e.shiftKey) nextYear(); else nextMonth(); break
+      case 'Enter':
+      case ' ':          e.preventDefault()
+        if (!isDisabledDate(focusedDate)) selectDate(focusedDate); break
+      case 'Escape':     e.preventDefault(); setOpen(false); triggerRef.current?.focus(); break
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focusedDate, moveFocus, prevYear, prevMonth, nextYear, nextMonth, selectDate, minDate, maxDate])
+  }, [focusedDate, moveFocus, minDate, maxDate, selectDate])
 
-  const isDisabledDate = (d: Date): boolean => {
+  function isDisabledDate(d: Date): boolean {
     if (minDate && d < minDate) return true
     if (maxDate && d > maxDate) return true
     return false
   }
-  const isSelected = (d: Date) => toDateStr(d) === selected
-  const isToday    = (d: Date) => toDateStr(d) === toDateStr(today)
-  const isFocused  = (d: Date) => toDateStr(d) === toDateStr(focusedDate)
 
-  const totalDays = daysInMonth(viewYear, viewMonth)
-  const startDay  = firstDayOfMonth(viewYear, viewMonth)
-  const cells: Array<Date | null> = []
-  for (let i = 0; i < startDay; i++) cells.push(null)
-  for (let d = 1; d <= totalDays; d++) cells.push(new Date(viewYear, viewMonth, d))
+  // Build calendar grid
+  const totalDays   = daysInMonth(viewYear, viewMonth)
+  const startOffset = firstDayOfMonth(viewYear, viewMonth)
+  const cells: (number | null)[] = [
+    ...Array(startOffset).fill(null),
+    ...Array.from({ length: totalDays }, (_, i) => i + 1),
+  ]
+  // Pad to complete last row
   while (cells.length % 7 !== 0) cells.push(null)
-  const weeks: Array<Array<Date | null>> = []
+
+  const weeks: (number | null)[][] = []
   for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7))
 
-  const dayLabels    = getDayLabels(locale)
-  const monthYearLbl = getMonthYearLabel(viewYear, viewMonth, locale)
+  const dayLabels      = getDayLabels(locale)
+  const monthYearLabel = getMonthYearLabel(viewYear, viewMonth, locale)
+  const displayValue   = formatDisplay(selected, locale)
+
+  // aria-label for trigger: use label prop if provided, else "Choose date"
+  const triggerAriaLabel = label ?? 'Choose date'
+  // aria-label for dialog: always "Choose date" (spec §8)
+  const dialogAriaLabel = 'Choose date'
 
   return (
-    <div className={styles.root} data-testid="datepicker">
+    <div className={styles.root}>
       {label && <label htmlFor={inputId} className={styles.label}>{label}</label>}
 
+      {/* Trigger button */}
       <button
         ref={triggerRef}
         id={inputId}
         type="button"
-        aria-label={label ?? 'Choose date'}
+        disabled={disabled}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={dialogId}
-        disabled={disabled}
-        className={styles.trigger}
-        onClick={() => !disabled && setOpen(o => !o)}
+        aria-label={triggerAriaLabel}
         data-testid="datepicker-trigger"
+        className={`${styles.trigger} ${open ? styles.triggerOpen : ''}`}
+        onClick={() => !disabled && setOpen(o => !o)}
       >
-        <span className={styles.triggerText}>
-          {selected
-            ? formatDisplay(selected, locale)
-            : <span className={styles.placeholder}>{placeholder}</span>}
+        <span className={displayValue ? styles.triggerValue : styles.triggerPlaceholder}>
+          {displayValue || placeholder}
         </span>
-        <svg className={styles.icon} aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <rect x="1" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/>
-          <path d="M1 7h14" stroke="currentColor" strokeWidth="1.5"/>
-          <path d="M5 1v4M11 1v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        <svg className={styles.icon} aria-hidden="true" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd"
+            d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+            clipRule="evenodd" />
         </svg>
       </button>
 
+      {/* Calendar dialog */}
       {open && (
         <div
           ref={dialogRef}
           id={dialogId}
           role="dialog"
-          aria-label="Choose date"
           aria-modal="true"
-          className={styles.dialog}
+          aria-label={dialogAriaLabel}
           data-testid="datepicker-dialog"
-          onKeyDown={handleKeyDown}
+          className={styles.dialog}
         >
-          {/* Navigation header */}
+          {/* Month / year navigation */}
           <div className={styles.header}>
-            <button type="button" className={styles.navBtn} aria-label="Previous year"
-              onClick={prevYear}  data-testid="prev-year">&laquo;</button>
-            <button type="button" className={styles.navBtn} aria-label="Previous month"
-              onClick={prevMonth} data-testid="prev-month">&lsaquo;</button>
+            <button
+              type="button"
+              onClick={prevYear}
+              aria-label="Previous year"
+              data-testid="prev-year"
+              className={styles.navBtn}
+            >«</button>
+            <button
+              type="button"
+              onClick={prevMonth}
+              aria-label="Previous month"
+              data-testid="prev-month"
+              className={styles.navBtn}
+            >‹</button>
             <span className={styles.monthYear} aria-live="polite" aria-atomic="true">
-              {monthYearLbl}
+              {monthYearLabel}
             </span>
-            <button type="button" className={styles.navBtn} aria-label="Next month"
-              onClick={nextMonth} data-testid="next-month">&rsaquo;</button>
-            <button type="button" className={styles.navBtn} aria-label="Next year"
-              onClick={nextYear}  data-testid="next-year">&raquo;</button>
+            <button
+              type="button"
+              onClick={nextMonth}
+              aria-label="Next month"
+              data-testid="next-month"
+              className={styles.navBtn}
+            >›</button>
+            <button
+              type="button"
+              onClick={nextYear}
+              aria-label="Next year"
+              data-testid="next-year"
+              className={styles.navBtn}
+            >»</button>
           </div>
 
-          {/* Calendar grid
-              tabIndex={-1} makes the table programmatically focusable so that
-              userEvent.type(grid, ...) in tests can dispatch keyboard events to
-              it. Real users navigate via the roving tabindex on day cells. */}
+          {/* Day grid */}
           <table
             ref={gridRef}
             role="grid"
-            aria-label={monthYearLbl}
+            aria-label={monthYearLabel}
             className={styles.grid}
             tabIndex={-1}
+            onKeyDown={handleGridKeyDown}
           >
             <thead>
               <tr>
                 {dayLabels.map(d => (
-                  <th key={d} scope="col" className={styles.dayHeader}>{d}</th>
+                  <th key={d} scope="col" abbr={d} className={styles.dayHeader}>{d}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {weeks.map((week, wi) => (
                 <tr key={wi}>
-                  {week.map((date, di) => {
-                    if (!date) return <td key={di} className={styles.empty} aria-hidden="true" />
-                    const dis = isDisabledDate(date)
-                    const sel = isSelected(date)
-                    const tod = isToday(date)
-                    const foc = isFocused(date)
-                    const cls = [
-                      styles.cell,
-                      sel ? styles.selected : '',
-                      tod ? styles.today    : '',
-                      dis ? styles.disabled : '',
-                    ].filter(Boolean).join(' ')
+                  {week.map((day, di) => {
+                    if (day === null) {
+                      return <td key={di} className={styles.empty} aria-hidden="true" />
+                    }
+                    const cellDate = new Date(viewYear, viewMonth, day)
+                    const dateStr  = toDateStr(cellDate)
+                    const isSelected  = dateStr === selected
+                    const isToday     = dateStr === toDateStr(today)
+                    const isDisabled  = isDisabledDate(cellDate)
+                    const isFocused   = toDateStr(focusedDate) === dateStr
+
                     return (
-                      <td
-                        key={di}
-                        role="gridcell"
-                        aria-selected={sel}
-                        aria-disabled={dis}
-                        tabIndex={foc ? 0 : -1}
-                        className={cls}
-                        onClick={() => !dis && selectDate(date)}
-                        onFocus={() => setFocusedDate(date)}
-                        data-testid={`day-${toDateStr(date)}`}
-                      >
-                        {date.getDate()}
+                      <td key={di} role="gridcell">
+                        <button
+                          type="button"
+                          tabIndex={isFocused ? 0 : -1}
+                          disabled={isDisabled}
+                          aria-selected={isSelected}
+                          aria-disabled={isDisabled ? 'true' : 'false'}
+                          aria-label={cellDate.toLocaleDateString(locale, {
+                            weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+                          })}
+                          data-testid={`day-${dateStr}`}
+                          className={[
+                            styles.day,
+                            isSelected ? styles.daySelected : '',
+                            isToday    ? styles.dayToday    : '',
+                            isDisabled ? styles.dayDisabled : '',
+                          ].join(' ').trim()}
+                          onClick={() => !isDisabled && selectDate(cellDate)}
+                          onFocus={() => setFocusedDate(cellDate)}
+                        >
+                          {day}
+                        </button>
                       </td>
                     )
                   })}
@@ -383,34 +409,10 @@ export function DatePicker({
               ))}
             </tbody>
           </table>
-
-          {/* Footer */}
-          <div className={styles.footer}>
-            <button
-              type="button"
-              className={styles.todayBtn}
-              disabled={isDisabledDate(today)}
-              onClick={() => selectDate(today)}
-              data-testid="today-btn"
-            >
-              Today
-            </button>
-            <button
-              type="button"
-              className={styles.clearBtn}
-              onClick={() => {
-                if (!isControlled) setInternalValue('')
-                onChange?.('')
-                setOpen(false)
-                triggerRef.current?.focus()
-              }}
-              data-testid="clear-btn"
-            >
-              Clear
-            </button>
-          </div>
         </div>
       )}
     </div>
   )
 }
+
+export default DatePicker
