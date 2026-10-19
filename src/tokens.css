@@ -1,0 +1,162 @@
+/**
+ * Design Tokens — Kanban Board
+ * Direction: "Linear/Vercel-calm" — structured, enterprise-legible, one accent.
+ * Typeface: Inter (system-ui fallback stack)
+ * Reference: DESIGN.md
+ *
+ * Rules:
+ *  - Every component reads from these variables. No literal colour, spacing,
+ *    radius or shadow value may appear in a component stylesheet.
+ *  - Add a token here before using a new value anywhere else.
+ */
+
+:root {
+  /* ─── Typography ─────────────────────────────────────────────────────────── */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  --text-xs:   0.75rem;   /* 12px — captions, badges */
+  --text-sm:   0.8125rem; /* 13px — card body, inputs */
+  --text-base: 0.875rem;  /* 14px — card title, column body */
+  --text-md:   1rem;      /* 16px — section headings */
+  --text-lg:   1.25rem;   /* 20px — page title */
+  --text-xl:   1.5rem;    /* 24px — hero / display */
+
+  --weight-regular: 400;
+  --weight-medium:  500;
+  --weight-semibold: 600;
+  --weight-bold:    700;
+  --weight-extrabold: 800;
+
+  --leading-tight:  1.3;
+  --leading-snug:   1.4;
+  --leading-normal: 1.5;
+
+  --tracking-wide: 0.05em; /* column label uppercase */
+
+  /* ─── Spacing scale (4px base) ──────────────────────────────────────────── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-7:  28px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ─── Colour — Neutral surface palette ──────────────────────────────────── */
+  /* Light mode (default) */
+  --color-bg:          #f0f2f5;   /* page canvas */
+  --color-surface-0:   #ffffff;   /* cards, inputs, header */
+  --color-surface-1:   #f7f8fa;   /* column background */
+  --color-surface-2:   #eef0f3;   /* hover, kbd, badge bg */
+  --color-surface-3:   #e3e6eb;   /* dividers, borders */
+
+  --color-border:      rgba(0, 0, 0, 0.10);  /* subtle 1px borders */
+  --color-border-strong: rgba(0, 0, 0, 0.18);
+
+  --color-text-primary:   #111827; /* headings — 16:1 on white */
+  --color-text-secondary: #374151; /* body — 10:1 on white */
+  --color-text-muted:     #6b7280; /* captions — 4.6:1 on white */
+  --color-text-placeholder: #9ca3af;
+
+  /* ─── Accent (one) ───────────────────────────────────────────────────────── */
+  --color-accent:        #2563eb; /* Blue-600 — primary actions, focus ring */
+  --color-accent-hover:  #1d4ed8; /* Blue-700 */
+  --color-accent-active: #1e40af; /* Blue-800 */
+  --color-accent-subtle: #eff6ff; /* Blue-50  — drag-over tint */
+  --color-accent-border: #bfdbfe; /* Blue-200 — drag-over border */
+  --color-accent-text:   #1e40af; /* Blue-800 — accent text on light bg */
+
+  /* ─── Semantic colours ───────────────────────────────────────────────────── */
+  --color-success:        #16a34a;
+  --color-success-subtle: #f0fdf4;
+  --color-warning:        #d97706;
+  --color-warning-subtle: #fffbeb;
+  --color-danger:         #dc2626;
+  --color-danger-subtle:  #fef2f2;
+  --color-info:           #0891b2;
+  --color-info-subtle:    #ecfeff;
+
+  /* ─── Radii ──────────────────────────────────────────────────────────────── */
+  --radius-sm:   4px;  /* kbd, badges */
+  --radius-md:   8px;  /* cards, inputs, buttons */
+  --radius-lg:  12px;  /* columns */
+  --radius-full: 9999px; /* pill badges */
+
+  /* ─── Elevation (box-shadow) ─────────────────────────────────────────────── */
+  --shadow-0: none;
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);  /* card resting */
+  --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.10), 0 2px 4px rgba(0, 0, 0, 0.06); /* card hover */
+  --shadow-3: 0 8px 24px rgba(0, 0, 0, 0.14), 0 4px 8px rgba(0, 0, 0, 0.08); /* drag overlay */
+
+  /* ─── Motion ─────────────────────────────────────────────────────────────── */
+  --duration-fast:   150ms;
+  --duration-normal: 200ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ─── Focus ring ─────────────────────────────────────────────────────────── */
+  --focus-ring: 0 0 0 2px var(--color-surface-0), 0 0 0 4px var(--color-accent);
+
+  /* ─── Layout ─────────────────────────────────────────────────────────────── */
+  --board-max-width: 1280px;
+  --column-width:    320px;
+  --column-min-width: 280px;
+  --header-height:   64px;
+
+  /* ─── Control heights (one set, used by all controls) ───────────────────── */
+  --control-sm: 32px;
+  --control-md: 36px;
+  --control-lg: 40px;
+}
+
+/* ─── Dark mode ──────────────────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg:          #0d1117;
+    --color-surface-0:   #161b22;
+    --color-surface-1:   #1c2128;
+    --color-surface-2:   #262d37;
+    --color-surface-3:   #30363d;
+
+    --color-border:        rgba(255, 255, 255, 0.08);
+    --color-border-strong: rgba(255, 255, 255, 0.15);
+
+    --color-text-primary:     #e6edf3;
+    --color-text-secondary:   #c9d1d9;
+    --color-text-muted:       #8b949e;
+    --color-text-placeholder: #6e7681;
+
+    --color-accent:        #3b82f6; /* Blue-500 — slightly lighter for dark bg */
+    --color-accent-hover:  #60a5fa; /* Blue-400 */
+    --color-accent-active: #93c5fd; /* Blue-300 */
+    --color-accent-subtle: #0d1f3c;
+    --color-accent-border: #1d4ed8;
+    --color-accent-text:   #93c5fd;
+
+    --color-success:        #22c55e;
+    --color-success-subtle: #052e16;
+    --color-warning:        #f59e0b;
+    --color-warning-subtle: #1c1400;
+    --color-danger:         #f87171;
+    --color-danger-subtle:  #2c0b0b;
+    --color-info:           #22d3ee;
+    --color-info-subtle:    #0a1f24;
+
+    --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.30), 0 1px 2px rgba(0, 0, 0, 0.20);
+    --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.40), 0 2px 4px rgba(0, 0, 0, 0.24);
+    --shadow-3: 0 8px 24px rgba(0, 0, 0, 0.50), 0 4px 8px rgba(0, 0, 0, 0.30);
+
+    --focus-ring: 0 0 0 2px var(--color-surface-0), 0 0 0 4px var(--color-accent);
+  }
+}
+
+/* ─── Reduced-motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast:   0ms;
+    --duration-normal: 0ms;
+  }
+}
