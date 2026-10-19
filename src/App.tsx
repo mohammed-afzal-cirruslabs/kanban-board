@@ -17,9 +17,10 @@ import { INITIAL_COLUMNS } from './data'
 import { KanbanColumn } from './components/KanbanColumn'
 import { KanbanCard } from './components/KanbanCard'
 import { TodoPage } from './components/TodoPage'
+import { DatePicker } from './components/DatePicker'
 import styles from './App.module.css'
 
-type View = 'kanban' | 'todo'
+type View = 'kanban' | 'todo' | 'datepicker'
 
 function findColumnByCardId(columns: Column[], cardId: string): Column | undefined {
   return columns.find((col) => col.cards.some((c) => c.id === cardId))
@@ -115,7 +116,7 @@ function App() {
     <div className={styles.app}>
       <header className={styles.appHeader}>
         <h1 className={styles.appTitle}>
-          {view === 'kanban' ? 'Kanban Board' : 'Todo List'}
+          {view === 'kanban' ? 'Kanban Board' : view === 'todo' ? 'Todo List' : 'Date Picker'}
         </h1>
         <nav className={styles.nav} aria-label="App navigation">
           <button
@@ -131,6 +132,13 @@ function App() {
             aria-current={view === 'todo' ? 'page' : undefined}
           >
             Todos
+          </button>
+          <button
+            className={`${styles.navBtn} ${view === 'datepicker' ? styles.navBtnActive : ''}`}
+            onClick={() => setView('datepicker')}
+            aria-current={view === 'datepicker' ? 'page' : undefined}
+          >
+            Date Picker
           </button>
         </nav>
         {view === 'kanban' && (
@@ -160,8 +168,27 @@ function App() {
             </DragOverlay>
           </DndContext>
         </main>
-      ) : (
+      ) : view === 'todo' ? (
         <TodoPage />
+      ) : (
+        <main style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <section>
+            <h2 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: 600 }}>Uncontrolled</h2>
+            <DatePicker placeholder="Select a date" />
+          </section>
+          <section>
+            <h2 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: 600 }}>With default value</h2>
+            <DatePicker defaultValue="2024-06-15" />
+          </section>
+          <section>
+            <h2 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: 600 }}>With min / max</h2>
+            <DatePicker defaultValue="2024-06-15" min="2024-06-10" max="2024-06-25" />
+          </section>
+          <section>
+            <h2 style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: 600 }}>Disabled</h2>
+            <DatePicker defaultValue="2024-06-15" disabled />
+          </section>
+        </main>
       )}
     </div>
   )
