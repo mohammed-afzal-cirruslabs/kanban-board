@@ -4,7 +4,7 @@
  * Covers: rendering, open/close, navigation, range selection (two-click),
  * min/max constraints, controlled mode, and accessibility attributes.
  */
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import { DateRangePicker } from '../components/DatePicker'
 import type { DateRange } from '../components/DatePicker'
@@ -13,6 +13,10 @@ import type { DateRange } from '../components/DatePicker'
 
 function openPicker() {
   fireEvent.click(screen.getByTestId('daterangepicker-trigger'))
+}
+
+function getDialog() {
+  return screen.getByTestId('daterangepicker-dialog')
 }
 
 // ─── rendering ───────────────────────────────────────────────────────────────
@@ -102,36 +106,37 @@ describe('DateRangePicker — month/year navigation', () => {
   it('renders month and year in header', () => {
     render(<DateRangePicker defaultValue={{ start: '2024-06-01' }} />)
     openPicker()
-    // The month label is generated via Intl — check for the year at minimum
-    expect(screen.getByText(/2024/)).toBeInTheDocument()
+    // Scope to the dialog so the trigger text (which also contains the year)
+    // does not cause a "multiple elements" error.
+    expect(within(getDialog()).getByText(/2024/)).toBeInTheDocument()
   })
 
   it('goes to previous month', () => {
     render(<DateRangePicker defaultValue={{ start: '2024-06-01' }} />)
     openPicker()
     fireEvent.click(screen.getByTestId('prev-month'))
-    expect(screen.getByText(/May.*2024|2024.*May/i)).toBeInTheDocument()
+    expect(within(getDialog()).getByText(/May.*2024|2024.*May/i)).toBeInTheDocument()
   })
 
   it('goes to next month', () => {
     render(<DateRangePicker defaultValue={{ start: '2024-06-01' }} />)
     openPicker()
     fireEvent.click(screen.getByTestId('next-month'))
-    expect(screen.getByText(/July.*2024|2024.*July/i)).toBeInTheDocument()
+    expect(within(getDialog()).getByText(/July.*2024|2024.*July/i)).toBeInTheDocument()
   })
 
   it('wraps month backward across year boundary', () => {
     render(<DateRangePicker defaultValue={{ start: '2024-01-01' }} />)
     openPicker()
     fireEvent.click(screen.getByTestId('prev-month'))
-    expect(screen.getByText(/December.*2023|2023.*December/i)).toBeInTheDocument()
+    expect(within(getDialog()).getByText(/December.*2023|2023.*December/i)).toBeInTheDocument()
   })
 
   it('wraps month forward across year boundary', () => {
     render(<DateRangePicker defaultValue={{ start: '2024-12-01' }} />)
     openPicker()
     fireEvent.click(screen.getByTestId('next-month'))
-    expect(screen.getByText(/January.*2025|2025.*January/i)).toBeInTheDocument()
+    expect(within(getDialog()).getByText(/January.*2025|2025.*January/i)).toBeInTheDocument()
   })
 })
 
