@@ -274,14 +274,20 @@ export function DatePicker({
         data-testid="datepicker-trigger"
         className={`${styles.trigger} ${open ? styles.triggerOpen : ''}`}
         onClick={() => !disabled && setOpen(o => !o)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape' && open) {
+            e.preventDefault()
+            setOpen(false)
+          }
+        }}
       >
         <span className={displayValue ? styles.triggerValue : styles.triggerPlaceholder}>
           {displayValue || placeholder}
         </span>
-        <svg className={styles.icon} aria-hidden="true" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd"
-            d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-            clipRule="evenodd" />
+        <svg className={styles.icon} aria-hidden="true" viewBox="0 0 16 16" fill="none" width="16" height="16">
+          <rect x="1" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M1 7h14" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M5 1v4M11 1v4" stroke="currentColor" strokeLinecap="round" strokeWidth="1.5"/>
         </svg>
       </button>
 
@@ -324,34 +330,38 @@ export function DatePicker({
               {weeks.map((week, wi) => (
                 <tr key={wi}>
                   {week.map((day, di) => {
-                    if (day === null) return <td key={di} role="gridcell" className={styles.empty} />
+                    if (day == null) {
+                      return <td key={di} className={styles.emptyCell} aria-hidden="true" />
+                    }
                     const cellDate = new Date(viewYear, viewMonth, day)
                     cellDate.setHours(0, 0, 0, 0)
                     const cellStr    = toDateStr(cellDate)
                     const isSelected = cellStr === selected
                     const isToday    = cellStr === toDateStr(today)
+                    const isFocused  = cellStr === toDateStr(focusedDate)
                     const isDisabled = isDisabledDate(cellDate)
-                    const isFocused  = toDateStr(focusedDate) === cellStr
-                    const cls = [
-                      styles.day,
-                      isSelected ? styles.daySelected : '',
-                      isToday    ? styles.dayToday    : '',
-                      isDisabled ? styles.dayDisabled : '',
-                    ].filter(Boolean).join(' ')
+                    const isOtherMonth = cellDate.getMonth() !== viewMonth
+
                     return (
-                      <td key={di} role="gridcell">
+                      <td key={di} className={styles.cell}>
                         <button
                           type="button"
-                          className={cls}
+                          role="gridcell"
                           tabIndex={isFocused ? 0 : -1}
-                          disabled={isDisabled}
                           aria-selected={isSelected ? 'true' : 'false'}
                           aria-disabled={isDisabled ? 'true' : 'false'}
-                          aria-label={cellDate.toLocaleDateString(locale, {
-                            weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
-                          })}
+                          aria-current={isToday ? 'date' : undefined}
                           data-testid={`day-${cellStr}`}
-                          onClick={() => !isDisabled && selectDate(cellDate)}
+                          className={[
+                            styles.day,
+                            isSelected   ? styles.daySelected   : '',
+                            isToday      ? styles.dayToday      : '',
+                            isDisabled   ? styles.dayDisabled   : '',
+                            isOtherMonth ? styles.dayOtherMonth : '',
+                          ].join(' ').trim()}
+                          onClick={() => {
+                            if (!isDisabled) selectDate(cellDate)
+                          }}
                         >
                           {day}
                         </button>
@@ -367,6 +377,7 @@ export function DatePicker({
             <button
               type="button"
               className={styles.todayBtn}
+              data-testid="today-btn"
               disabled={isDisabledDate(today)}
               onClick={() => {
                 setViewYear(today.getFullYear())
@@ -378,6 +389,7 @@ export function DatePicker({
             <button
               type="button"
               className={styles.clearBtn}
+              data-testid="clear-btn"
               onClick={() => {
                 if (!isControlled) setInternalValue('')
                 onChange?.('')
