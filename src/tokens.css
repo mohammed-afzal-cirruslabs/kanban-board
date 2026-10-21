@@ -70,6 +70,12 @@
   --color-accent-border: #bfdbfe; /* Blue-200 — drag-over border */
   --color-accent-text:   #1e40af; /* Blue-800 — accent text on light bg */
 
+  /* ─── Chess piece colours ────────────────────────────────────────────────── */
+  /* Used by ChessSquare to colour Unicode piece glyphs. Kept as tokens so the
+     chess feature never embeds literal hex values in its stylesheets. */
+  --color-piece-white: #ffffff;  /* white-piece glyph fill */
+  --color-piece-black: #1a1a1a;  /* black-piece glyph fill */
+
   /* ─── Semantic colours ───────────────────────────────────────────────────── */
   --color-success:        #16a34a;
   --color-success-subtle: #f0fdf4;
@@ -150,6 +156,11 @@
     --shadow-3: 0 8px 24px rgba(0, 0, 0, 0.50), 0 4px 8px rgba(0, 0, 0, 0.30);
 
     --focus-ring: 0 0 0 2px var(--color-surface-0), 0 0 0 4px var(--color-accent);
+
+    /* Chess piece colours stay the same in dark mode — the contrast is against
+       the board squares, not the page background. */
+    --color-piece-white: #ffffff;
+    --color-piece-black: #1a1a1a;
   }
 }
 
