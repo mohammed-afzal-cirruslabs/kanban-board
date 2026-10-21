@@ -369,6 +369,7 @@ export function DateRangePicker({
                             isDisabledCell   ? styles.dayDisabled  : '',
                             isPending        ? styles.dayPending   : '',
                           ].join(' ').trim()}
+                          disabled={isDisabledCell}
                           onClick={() => {
                             if (!isDisabledCell) { onDayClick(cellDate) }
                           }}
