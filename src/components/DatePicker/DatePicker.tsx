@@ -324,7 +324,7 @@ export function DatePicker({
               {weeks.map((week, wi) => (
                 <tr key={wi}>
                   {week.map((day, di) => {
-                    if (day === null) return <td key={di} role="gridcell" className={styles.empty} />
+                    if (day === null) return <td key={di} className={styles.empty} />
                     const cellDate = new Date(viewYear, viewMonth, day)
                     cellDate.setHours(0, 0, 0, 0)
                     const cellStr    = toDateStr(cellDate)
@@ -339,12 +339,12 @@ export function DatePicker({
                       isDisabled ? styles.dayDisabled : '',
                     ].filter(Boolean).join(' ')
                     return (
-                      <td key={di} role="gridcell">
+                      <td key={di}>
                         <button
                           type="button"
+                          role="gridcell"
                           className={cls}
                           tabIndex={isFocused ? 0 : -1}
-                          disabled={isDisabled}
                           aria-selected={isSelected ? 'true' : 'false'}
                           aria-disabled={isDisabled ? 'true' : 'false'}
                           aria-label={cellDate.toLocaleDateString(locale, {
@@ -367,6 +367,7 @@ export function DatePicker({
             <button
               type="button"
               className={styles.todayBtn}
+              data-testid="today-btn"
               disabled={isDisabledDate(today)}
               onClick={() => {
                 setViewYear(today.getFullYear())
@@ -378,6 +379,7 @@ export function DatePicker({
             <button
               type="button"
               className={styles.clearBtn}
+              data-testid="clear-btn"
               onClick={() => {
                 if (!isControlled) setInternalValue('')
                 onChange?.('')
