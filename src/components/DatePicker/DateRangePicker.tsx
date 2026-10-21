@@ -172,13 +172,18 @@ export function DateRangePicker({
   }
 
   function isRangeStart(d: Date): boolean {
-    return toDateStr(d) === range.start
+    const str = toDateStr(d)
+    return str === range.start || str === pendingStart
   }
 
   const onDayClick = useCallback((d: Date) => {
     const str = toDateStr(d)
     if (!pendingStart) {
+      // First click: set pending start, fire onChange with start-only range, keep dialog open
       setPendingStart(str)
+      const startOnly: DateRange = { start: str }
+      if (!isControlled) setInternalValue(startOnly)
+      onChange?.(startOnly)
     } else {
       const [start, end] = pendingStart <= str
         ? [pendingStart, str]
@@ -261,7 +266,14 @@ export function DateRangePicker({
         aria-label={label ?? 'Choose date range'}
         data-testid="daterangepicker-trigger"
         className={`${styles.trigger} ${open ? styles.triggerOpen : ''}`}
-        onClick={() => !disabled && setOpen(o => !o)}
+        onClick={() => !disabled && (pendingStart ? setOpen(true) : setOpen(o => !o))}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape' && open) {
+            e.preventDefault()
+            setOpen(false)
+            setPendingStart(null)
+          }
+        }}
       >
         <span className={styles.triggerText}>{triggerText}</span>
         <svg className={styles.icon} aria-hidden="true" viewBox="0 0 16 16" fill="none" width="16" height="16">
@@ -280,6 +292,14 @@ export function DateRangePicker({
           aria-label="Choose date range"
           data-testid="daterangepicker-dialog"
           className={styles.dialog}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              e.preventDefault()
+              setOpen(false)
+              setPendingStart(null)
+              triggerRef.current?.focus()
+            }
+          }}
         >
           <div className={styles.header}>
             <button type="button" onClick={onPrevYear}  aria-label="Previous year"  data-testid="prev-year"  className={styles.navBtn}>«</button>
@@ -300,6 +320,7 @@ export function DateRangePicker({
           <table
             ref={gridRef}
             role="grid"
+            aria-multiselectable="true"
             aria-label={monthYearLabel}
             className={styles.grid}
             onKeyDown={handleGridKeyDown}
@@ -331,9 +352,10 @@ export function DateRangePicker({
                     const isPending  = cellStr === pendingStart
 
                     return (
-                      <td key={di} role="gridcell" className={styles.cell}>
+                      <td key={di} className={styles.cell}>
                         <button
                           type="button"
+                          role="gridcell"
                           tabIndex={isFocused ? 0 : -1}
                           aria-selected={(isStart || isEnd) ? 'true' : 'false'}
                           aria-disabled={isDisabledCell ? 'true' : 'false'}
@@ -347,7 +369,6 @@ export function DateRangePicker({
                             isDisabledCell   ? styles.dayDisabled  : '',
                             isPending        ? styles.dayPending   : '',
                           ].join(' ').trim()}
-                          disabled={isDisabledCell}
                           onClick={() => {
                             if (!isDisabledCell) { onDayClick(cellDate) }
                           }}
@@ -361,6 +382,22 @@ export function DateRangePicker({
               ))}
             </tbody>
           </table>
+
+          <div className={styles.footer}>
+            <button
+              type="button"
+              data-testid="drp-clear-btn"
+              className={styles.clearBtn}
+              onClick={() => {
+                const cleared: DateRange = { start: '' }
+                if (!isControlled) setInternalValue({})
+                onChange?.(cleared)
+                setPendingStart(null)
+                setOpen(false)
+                triggerRef.current?.focus()
+              }}
+            >Clear</button>
+          </div>
         </div>
       )}
     </div>
