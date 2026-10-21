@@ -100,6 +100,17 @@
   /* ─── Focus ring ─────────────────────────────────────────────────────────── */
   --focus-ring: 0 0 0 2px var(--color-surface-0), 0 0 0 4px var(--color-accent);
 
+  /* ─── Chess board ────────────────────────────────────────────────────────── */
+  /* True chess-square hues. No existing neutral surface reads as a board cell;
+     these are the only values in the system that are chess-specific.
+     Direction: Lichess/classic — warm cream + medium brown, accent/danger for
+     interactive states (selection, check) so the board speaks the same design
+     language as the rest of the product. */
+  --chess-sq-light:        #f0d9b5; /* classic cream — light squares */
+  --chess-sq-dark:         #b58863; /* warm brown   — dark squares  */
+  --chess-piece-white:     #ffffff; /* white piece glyph fill */
+  --chess-piece-black:     #1a1a1a; /* black piece glyph fill */
+
   /* ─── Layout ─────────────────────────────────────────────────────────────── */
   --board-max-width: 1280px;
   --column-width:    320px;
@@ -112,7 +123,7 @@
   --control-lg: 40px;
 }
 
-/* ─── Dark mode ──────────────────────────────────────────────────────────── */
+/* ─── Dark mode ─────────────────────────────────────────────────��────────── */
 @media (prefers-color-scheme: dark) {
   :root {
     --color-bg:          #0d1117;
@@ -150,6 +161,12 @@
     --shadow-3: 0 8px 24px rgba(0, 0, 0, 0.50), 0 4px 8px rgba(0, 0, 0, 0.30);
 
     --focus-ring: 0 0 0 2px var(--color-surface-0), 0 0 0 4px var(--color-accent);
+
+    /* Chess board — darker, slightly desaturated in dark mode for eye comfort */
+    --chess-sq-light:    #b8a07a;
+    --chess-sq-dark:     #8b6343;
+    --chess-piece-white: #f5f0e8;
+    --chess-piece-black: #0d0d0d;
   }
 }
 

@@ -34,11 +34,11 @@
 }
 
 .dotWhite {
-  background: #ffffff;
+  background: var(--chess-piece-white);
 }
 
 .dotBlack {
-  background: #1a1a1a;
+  background: var(--chess-piece-black);
 }
 
 .turnText {
