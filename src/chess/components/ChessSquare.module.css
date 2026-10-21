@@ -60,8 +60,14 @@
 }
 
 /* ─── States ─────────────────────────────────────────────────────────────── */
+/* Last-move highlight: warm yellow tint on both the from- and to-squares of
+   the previous move. Uses --chess-sq-last-move so it is visually distinct
+   from the selection state (accent-subtle + ring) and the check state
+   (danger-subtle + ring). Opacity 0.55 lets the underlying square colour
+   show through, preserving the checkerboard contrast. */
 .lastMove {
-  background: var(--color-accent-subtle);
+  background: var(--chess-sq-last-move);
+  opacity: 0.55;
 }
 
 .selected {
