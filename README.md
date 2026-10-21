@@ -20,6 +20,7 @@ Kanban board UI — columns, draggable cards, clean styling.
 |---|---|
 | **GitHub repo** | <https://github.com/mohammed-afzal-cirruslabs/kanban-board> |
 | **ClickUp Delivery list** | <https://app.clickup.com/90167928750/v/li/901616741784> |
+| **LoginForm task** | <https://app.clickup.com/t/14yj85p2c5w> |
 
 ## Prerequisites
 
@@ -84,9 +85,15 @@ src/
     KanbanColumn.tsx     # Column header + card list (SortableContext)
     KanbanCard.tsx       # Draggable card (useSortable)
     AddCardForm.tsx      # Inline add-card form per column
+    LoginForm/
+      LoginForm.tsx      # Email + password fields, validation, loading state
+      LoginForm.module.css  # Design-token-only styles (zero literal values)
+      index.ts           # Barrel export
   tokens.css             # Design tokens — all CSS custom properties
   App.tsx
   main.tsx
 tests/
   KanbanBoard.test.tsx   # 29 tests covering all acceptance criteria
+src/test/
+  loginform.test.tsx     # 40 tests covering all LoginForm acceptance criteria
 ```
