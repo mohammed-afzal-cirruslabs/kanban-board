@@ -1,11 +1,13 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useMemo } from 'react'
 import { Todo } from '../types'
 import { TodoItem } from './TodoItem'
+import { Autocomplete, AutocompleteOption } from './Autocomplete'
 import styles from './TodoPage.module.css'
 
 export function TodoPage() {
   const [todos, setTodos] = useState<Todo[]>([])
   const [input, setInput] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleAdd = useCallback(
@@ -33,6 +35,22 @@ export function TodoPage() {
     setTodos((prev) => prev.filter((t) => t.id !== id))
   }, [])
 
+  // Derive autocomplete options from existing todo titles that match the query.
+  const searchOptions = useMemo<AutocompleteOption[]>(() => {
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return []
+    return todos
+      .filter((t) => t.title.toLowerCase().includes(q))
+      .map((t) => ({ value: t.id, label: t.title }))
+  }, [todos, searchQuery])
+
+  // Filter the visible list by the current search query.
+  const visibleTodos = useMemo<Todo[]>(() => {
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return todos
+    return todos.filter((t) => t.title.toLowerCase().includes(q))
+  }, [todos, searchQuery])
+
   return (
     <main className={styles.page} aria-label="Todo list">
       <div className={styles.container}>
@@ -58,13 +76,29 @@ export function TodoPage() {
           </button>
         </form>
 
-        {todos.length === 0 ? (
+        {todos.length > 0 && (
+          <Autocomplete
+            label="Search todos"
+            placeholder="Filter todos…"
+            options={searchOptions}
+            onSearch={setSearchQuery}
+            onSelect={(opt) => setSearchQuery(opt.label)}
+            debounceMs={300}
+            className={styles.search}
+          />
+        )}
+
+        {visibleTodos.length === 0 && todos.length === 0 ? (
           <p className={styles.empty} role="status">
             No todos yet — add one above
           </p>
+        ) : visibleTodos.length === 0 ? (
+          <p className={styles.empty} role="status">
+            No todos match "{searchQuery}"
+          </p>
         ) : (
           <ul className={styles.list} aria-label="Todo items">
-            {todos.map((todo) => (
+            {visibleTodos.map((todo) => (
               <TodoItem
                 key={todo.id}
                 todo={todo}
