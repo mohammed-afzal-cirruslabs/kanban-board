@@ -32,12 +32,6 @@ function firstDayOfMonth(year: number, month: number): number {
   return new Date(year, month, 1).getDay()
 }
 
-function normaliseDate(d: Date): Date {
-  const n = new Date(d)
-  n.setHours(0, 0, 0, 0)
-  return n
-}
-
 // ─── Localisation helpers ─────────────────────────────────────────────────────
 
 function getDayLabels(locale = 'en'): string[] {
@@ -81,8 +75,6 @@ export function DateRangePicker({
   onChange,
   min,
   max,
-  minDate: minDateProp,
-  maxDate: maxDateProp,
   placeholder = 'Select a date range',
   disabled = false,
   label,
@@ -94,16 +86,16 @@ export function DateRangePicker({
   const dialogId = `drp-dialog-${autoId}`
 
   const isControlled = value !== undefined
-  const [internalValue, setInternalValue] = useState<DateRange>(defaultValue ?? {})
-  const range: DateRange = isControlled ? (value ?? {}) : internalValue
+  const [internalValue, setInternalValue] = useState<Partial<DateRange>>(defaultValue ?? {})
+  const range: Partial<DateRange> = isControlled ? (value ?? {}) : internalValue
 
   const [open, setOpen] = useState(false)
   const [pendingStart, setPendingStart] = useState<string | null>(null)
 
   const today = new Date(); today.setHours(0, 0, 0, 0)
 
-  const minDate: Date | null = minDateProp ? normaliseDate(minDateProp) : parseDate(min)
-  const maxDate: Date | null = maxDateProp ? normaliseDate(maxDateProp) : parseDate(max)
+  const minDate: Date | null = parseDate(min)
+  const maxDate: Date | null = parseDate(max)
 
   const initView = (() => {
     const d = parseDate(range.start) ?? parseDate(range.end) ?? today
@@ -198,7 +190,6 @@ export function DateRangePicker({
       setOpen(false)
       triggerRef.current?.focus()
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingStart, isControlled, onChange])
 
   const moveFocus = useCallback((next: Date) => {
