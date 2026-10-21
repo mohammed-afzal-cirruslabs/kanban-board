@@ -121,14 +121,14 @@ describe('check, checkmate, stalemate — additional positions', () => {
     expect(getAllLegalMoves(s)).toHaveLength(0)
   })
   it('back-rank checkmate is detected', () => {
-    // Black Kh8, own Rg8 (blocks g8), own Pg7 (blocks g7), own Ph7 (blocks h7).
-    // White Rh1 gives check on the h-file. The king has no escape square and no
-    // black piece can interpose or capture the rook on h1. Verified checkmate.
+    // Black Kh8, own Rg8 (blocks g8), own Pg7 (blocks g7).
+    // White Rh1 gives check on the h-file. h7 is also controlled by Rh1 so the
+    // king cannot escape there. No black piece can interpose or capture Rh1.
+    // Verified checkmate.
     const s = pos('black', {
       h8: { type: 'king',  color: 'black' },
       g8: { type: 'rook',  color: 'black' },
       g7: { type: 'pawn',  color: 'black' },
-      h7: { type: 'pawn',  color: 'black' },
       h1: { type: 'rook',  color: 'white' },
       a1: { type: 'king',  color: 'white' },
     })

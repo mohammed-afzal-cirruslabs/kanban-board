@@ -34,11 +34,11 @@
 }
 
 .dotWhite {
-  background: #ffffff;
+  background: var(--color-piece-white);
 }
 
 .dotBlack {
-  background: #1a1a1a;
+  background: var(--color-piece-black);
 }
 
 .turnText {
@@ -86,7 +86,7 @@
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   font-family: var(--font-sans);
-  color: #ffffff;
+  color: var(--color-piece-white);
   background: var(--color-accent);
   border: none;
   border-radius: var(--radius-md);

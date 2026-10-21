@@ -47,7 +47,7 @@
 
 /* White pieces: light fill with a dark outline so they read on both shades. */
 .white {
-  color: #ffffff;
+  color: var(--color-piece-white);
   text-shadow:
     0 0 1px var(--color-text-primary),
     0 1px 2px rgba(0, 0, 0, 0.35);
@@ -55,7 +55,7 @@
 
 /* Black pieces: solid dark glyph with a subtle light halo for contrast. */
 .blackPiece {
-  color: #1a1a1a;
+  color: var(--color-piece-black);
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.25);
 }
 
