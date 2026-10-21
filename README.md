@@ -19,7 +19,7 @@ Kanban board UI — columns, draggable cards, clean styling.
 | | |
 |---|---|
 | **GitHub repo** | <https://github.com/mohammed-afzal-cirruslabs/kanban-board> |
-| **ClickUp Delivery list** | _Pending ClickUp OAuth reconnect — update this line with the list URL once the token is restored_ |
+| **ClickUp Delivery list** | <https://app.clickup.com/90167928750/v/li/901616741784> |
 
 ## Prerequisites
 
