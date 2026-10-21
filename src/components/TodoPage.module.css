@@ -81,6 +81,11 @@
   box-shadow: var(--focus-ring);
 }
 
+/* ─── Search (Autocomplete) ──────────────────────────────────────────────── */
+.search {
+  width: 100%;
+}
+
 /* ─── Todo list ──────────────────────────────────────────────────────────── */
 .list {
   list-style: none;
