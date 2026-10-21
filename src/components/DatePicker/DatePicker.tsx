@@ -274,6 +274,12 @@ export function DatePicker({
         data-testid="datepicker-trigger"
         className={`${styles.trigger} ${open ? styles.triggerOpen : ''}`}
         onClick={() => !disabled && setOpen(o => !o)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape' && open) {
+            e.preventDefault()
+            setOpen(false)
+          }
+        }}
       >
         <span className={displayValue ? styles.triggerValue : styles.triggerPlaceholder}>
           {displayValue || placeholder}
