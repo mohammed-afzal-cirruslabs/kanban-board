@@ -19,11 +19,16 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect } from 'vitest'
 import { Navbar } from '../components/Navbar'
+import { ThemeProvider } from '../contexts/ThemeContext'
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
 function setup(props: Partial<Parameters<typeof Navbar>[0]> = {}) {
-  const result = render(<Navbar {...props} />)
+  const result = render(
+    <ThemeProvider>
+      <Navbar {...props} />
+    </ThemeProvider>
+  )
   return {
     ...result,
     getNav: () => screen.getByRole('navigation', { name: /main navigation/i }),
@@ -499,7 +504,11 @@ describe('AC12 — accessible button labels', () => {
 
 describe('Edge cases and integration', () => {
   it('renders without crashing with no props', () => {
-    expect(() => render(<Navbar />)).not.toThrow()
+    expect(() => render(
+      <ThemeProvider>
+        <Navbar />
+      </ThemeProvider>
+    )).not.toThrow()
   })
 
   it('handles rapid menu toggle clicks', async () => {
