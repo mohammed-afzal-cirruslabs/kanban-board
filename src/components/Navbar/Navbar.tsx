@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Menu, X, Search } from 'lucide-react'
+import { ThemeToggle } from '../ThemeToggle'
 import styles from './Navbar.module.css'
 
 interface NavbarProps {
@@ -74,6 +75,9 @@ export function Navbar({ activePage = 'boards' }: NavbarProps) {
 
         {/* Actions */}
         <div className={styles.actions}>
+          {/* Theme Toggle */}
+          <ThemeToggle />
+
           {/* Search Button - Desktop */}
           <button
             className={`${styles.iconBtn} ${styles.searchBtn}`}

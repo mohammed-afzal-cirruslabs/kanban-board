@@ -1,0 +1,53 @@
+/**
+ * Theme Toggle Button
+ * 
+ * Inherits iconBtn base styles from Navbar, with additional theme-specific
+ * visual feedback to indicate active theme mode.
+ */
+
+.themeToggle {
+  width: var(--control-md);
+  height: var(--control-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.themeToggle:hover {
+  color: var(--color-text-primary);
+  background: var(--color-surface-2);
+}
+
+.themeToggle:active {
+  background: var(--color-surface-3);
+  transform: scale(0.95);
+}
+
+.themeToggle:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Subtle glow effect when in dark mode to indicate active state */
+[data-theme='dark'] .themeToggle {
+  color: var(--color-accent-text);
+}
+
+[data-theme='dark'] .themeToggle:hover {
+  color: var(--color-accent-hover);
+  background: var(--color-accent-subtle);
+}
+
+/* ─── Reduced Motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .themeToggle {
+    transition-duration: 0ms;
+  }
+}

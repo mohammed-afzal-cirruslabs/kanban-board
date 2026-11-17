@@ -48,7 +48,23 @@ Tokens: `--space-1` through `--space-12`. No ad-hoc values. Gaps between related
 
 ## 4. Colour Palette
 
-### Light mode (default — dark mode is out of scope per S-2)
+### Theme System
+
+The kanban board supports **three theme modes**:
+- **Light** — force light theme
+- **Dark** — force dark theme  
+- **System** (default) — follow OS `prefers-color-scheme`
+
+User preference is persisted to `localStorage` and applied via `data-theme` attribute on `<html>`.
+
+**Implementation:**
+- `useTheme` hook (`src/hooks/useTheme.ts`) — manages state and persistence
+- `ThemeToggle` component (`src/components/ThemeToggle`) — navbar toggle (Sun/Moon/Monitor icons)
+- `tokens.css` — defines both light and dark palettes via `[data-theme='light']` and `[data-theme='dark']`
+
+**Full specification:** See `docs/THEME-SYSTEM.md`
+
+### Light mode (default)
 
 | Role | Token | Hex |
 |------|-------|-----|
@@ -82,6 +98,38 @@ Contrast check (WCAG AA):
 ### Semantic
 
 `--color-success`, `--color-warning`, `--color-danger`, `--color-info` + `*-subtle` variants. Reserved for future card labels / status chips.
+
+### Dark mode
+
+| Role | Token | Hex |
+|------|-------|-----|
+| Page canvas | `--color-bg` | `#0d1117` |
+| Card / input / header | `--color-surface-0` | `#161b22` |
+| Column background | `--color-surface-1` | `#1c2128` |
+| Hover / badge bg | `--color-surface-2` | `#262d37` |
+| Dividers / borders | `--color-surface-3` | `#30363d` |
+| Subtle border | `--color-border` | `rgba(255,255,255,0.08)` |
+| Strong border | `--color-border-strong` | `rgba(255,255,255,0.15)` |
+| Primary text | `--color-text-primary` | `#e6edf3` |
+| Body text | `--color-text-secondary` | `#c9d1d9` |
+| Muted / captions | `--color-text-muted` | `#8b949e` |
+| Placeholder | `--color-text-placeholder` | `#6e7681` |
+
+**Accent (dark mode):**
+
+| State | Token | Hex |
+|-------|-------|-----|
+| Default | `--color-accent` | `#3b82f6` (Blue-500, lighter for dark bg) |
+| Hover | `--color-accent-hover` | `#60a5fa` (Blue-400) |
+| Active | `--color-accent-active` | `#93c5fd` (Blue-300) |
+| Drag-over bg | `--color-accent-subtle` | `#0d1f3c` |
+| Drag-over border | `--color-accent-border` | `#1d4ed8` |
+
+**Design notes:**
+- Dark mode uses GitHub dark palette (calm, enterprise-appropriate)
+- Depth achieved through lighter surfaces rather than shadows alone
+- Accent is slightly lighter for better visibility on dark backgrounds
+- All contrast ratios re-verified for WCAG AA compliance
 
 ---
 
