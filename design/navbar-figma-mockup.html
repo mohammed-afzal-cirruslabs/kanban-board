@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navbar Component — Figma Design Mockup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            padding: 40px 20px;
+        }
+        
+        .figma-page {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+        
+        .page-subtitle {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 40px;
+        }
+        
+        .frame-section {
+            margin-bottom: 60px;
+        }
+        
+        .frame-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .frame-container {
+            background: white;
+            border: 1px solid #e3e6eb;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        
+        /* Navbar Styles */
+        .navbar {
+            height: 64px;
+            background: #ffffff;
+            border-bottom: 1px solid rgba(0,0,0,0.10);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        .navbar-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo {
+            width: 32px;
+            height: 32px;
+            background: #eff6ff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .brand {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+            letter-spacing: -0.02em;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            list-style: none;
+        }
+        
+        .nav-link {
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+        }
+        
+        .nav-link:hover {
+            background: #eef0f3;
+            color: #111827;
+        }
+        
+        .nav-link.active {
+            background: #eff6ff;
+            color: #2563eb;
+            font-weight: 600;
+        }
+        
+        .nav-link.focus {
+            box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #2563eb;
+        }
+        
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1);
+            font-size: 20px;
+        }
+        
+        .icon-btn:hover {
+            background: #eef0f3;
+            color: #111827;
+        }
+        
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 9999px;
+            border: 2px solid rgba(0,0,0,0.10);
+            background: #eff6ff;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .avatar:hover {
+            border-color: #2563eb;
+        }
+        
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+        }
+        
+        /* Dark Mode */
+        .navbar.dark {
+            background: #161b22;
+            border-bottom-color: rgba(255,255,255,0.08);
+        }
+        
+        .dark .brand {
+            color: #e6edf3;
+        }
+        
+        .dark .nav-link {
+            color: #c9d1d9;
+        }
+        
+        .dark .nav-link:hover {
+            background: #262d37;
+            color: #e6edf3;
+        }
+        
+        .dark .nav-link.active {
+            background: #0d1f3c;
+            color: #3b82f6;
+        }
+        
+        .dark .icon-btn {
+            color: #8b949e;
+        }
+        
+        .dark .icon-btn:hover {
+            background: #262d37;
+            color: #e6edf3;
+        }
+        
+        .dark .avatar {
+            border-color: rgba(255,255,255,0.08);
+        }
+        
+        /* Mobile Styles */
+        @media (max-width: 767px) {
+            .navbar-container {
+                padding: 0 16px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+            }
+            
+            .icon-btn.search {
+                display: none;
+            }
+        }
+        
+        .mobile-menu {
+            position: absolute;
+            top: 64px;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border-top: 1px solid rgba(0,0,0,0.10);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 16px;
+        }
+        
+        .mobile-menu .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .mobile-menu .nav-link {
+            width: 100%;
+            text-align: left;
+        }
+        
+        /* Annotations */
+        .annotation {
+            position: absolute;
+            font-size: 11px;
+            color: #ef4444;
+            font-weight: 600;
+            background: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #ef4444;
+            white-space: nowrap;
+        }
+        
+        .annotation-line {
+            position: absolute;
+            border-top: 1px dashed #ef4444;
+        }
+        
+        .spacing-demo {
+            position: relative;
+        }
+        
+        .spacing-demo .annotation-line.height {
+            left: -30px;
+            top: 0;
+            bottom: 0;
+            border-left: 1px dashed #ef4444;
+            border-top: none;
+        }
+        
+        .spacing-demo .annotation.height {
+            left: -80px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        /* Component Breakdown */
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .component-item {
+            padding: 20px;
+            background: white;
+            border: 1px solid #e3e6eb;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .component-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 12px;
+            font-weight: 500;
+        }
+        
+        .state-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+        
+        .state-item {
+            padding: 16px;
+            background: white;
+            border: 1px solid #e3e6eb;
+            border-radius: 8px;
+        }
+        
+        .state-label {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="figma-page">
+        <h1 class="page-title">Navbar Component — Visual Design Specification</h1>
+        <p class="page-subtitle">Kanban Board Application • Linear/Vercel-calm Direction • November 16, 2026</p>
+        
+        <!-- Frame 1: Desktop Default State -->
+        <div class="frame-section">
+            <div class="frame-label">Frame 1: Desktop — Default State (1280×64px)</div>
+            <div class="frame-container">
+                <nav class="navbar">
+                    <div class="navbar-container">
+                        <div class="logo-section">
+                            <div class="logo">📋</div>
+                            <div class="brand">Kanban Board</div>
+                        </div>
+                        <ul class="nav-links">
+                            <li><a href="#" class="nav-link">Dashboard</a></li>
+                            <li><a href="#" class="nav-link active">Boards</a></li>
+                            <li><a href="#" class="nav-link">Analytics</a></li>
+                        </ul>
+                        <div class="actions">
+                            <button class="icon-btn search">🔍</button>
+                            <div class="avatar">JD</div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Frame 2: Desktop Hover States -->
+        <div class="frame-section">
+            <div class="frame-label">Frame 2: Desktop — Hover States</div>
+            <div class="frame-container">
+                <nav class="navbar">
+                    <div class="navbar-container">
+                        <div class="logo-section">
+                            <div class="logo">📋</div>
+                            <div class="brand">Kanban Board</div>
+                        </div>
+                        <ul class="nav-links">
+                            <li><a href="#" class="nav-link" style="background: #eef0f3; color: #111827;">Dashboard</a></li>
+                            <li><a href="#" class="nav-link active">Boards</a></li>
+                            <li><a href="#" class="nav-link">Analytics</a></li>
+                        </ul>
+                        <div class="actions">
+                            <button class="icon-btn search" style="background: #eef0f3; color: #111827;">🔍</button>
+                            <div class="avatar" style="border-color: #2563eb;">JD</div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Frame 3: Desktop Focus States -->
+        <div class="frame-section">
+            <div class="frame-label">Frame 3: Desktop — Focus States (Keyboard Navigation)</div>
+            <div class="frame-container">
+                <nav class="navbar">
+                    <div class="navbar-container">
+                        <div class="logo-section">
+                            <div class="logo">📋</div>
+                            <div class="brand">Kanban Board</div>
+                        </div>
+                        <ul class="nav-links">
+                            <li><a href="#" class="nav-link focus">Dashboard</a></li>
+                            <li><a href="#" class="nav-link active">Boards</a></li>
+                            <li><a href="#" class="nav-link">Analytics</a></li>
+                        </ul>
+                        <div class="actions">
+                            <button class="icon-btn search">🔍</button>
+                            <div class="avatar">JD</div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Frame 4: Dark Mode Desktop -->
+        <div class="frame-section">
+            <div class="frame-label">Frame 4: Dark Mode — Desktop</div>
+            <div class="frame-container" style="background: #0d1117; padding: 0;">
+                <nav class="navbar dark">
+                    <div class="navbar-container">
+                        <div class="logo-section">
+                            <div class="logo">📋</div>
+                            <div class="brand">Kanban Board</div>
+                        </div>
+                        <ul class="nav-links">
+                            <li><a href="#" class="nav-link">Dashboard</a></li>
+                            <li><a href="#" class="nav-link active">Boards</a></li>
+                            <li><a href="#" class="nav-link">Analytics</a></li>
+                        </ul>
+                        <div class="actions">
+                            <button class="icon-btn search">🔍</button>
+                            <div class="avatar">JD</div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Frame 5: Mobile Closed Menu -->
+        <div class="frame-section">
+            <div class="frame-label">Frame 5: Mobile — Closed Menu (390×64px)</div>
+            <div class="frame-container" style="max-width: 390px;">
+                <nav class="navbar">
+                    <div class="navbar-container">
+                        <div class="logo-section">
+                            <div class="logo">📋</div>
+                            <div class="brand">Kanban Board</div>
+                        </div>
+                        <div class="actions">
+                            <button class="icon-btn mobile-menu-toggle" style="display: flex;">☰</button>
+                            <div class="avatar">JD</div>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Frame 6: Mobile Open Menu -->
+        <div class="frame-section">
+            <div class="frame-label">Frame 6: Mobile — Open Menu (390×300px)</div>
+            <div class="frame-container" style="max-width: 390px;">
+                <nav class="navbar">
+                    <div class="navbar-container">
+                        <div class="logo-section">
+                            <div class="logo">📋</div>
+                            <div class="brand">Kanban Board</div>
+                        </div>
+                        <div class="actions">
+                            <button class="icon-btn mobile-menu-toggle" style="display: flex; background: #eff6ff; color: #2563eb;">✕</button>
+                            <div class="avatar">JD</div>
+                        </div>
+                    </div>
+                    <div class="mobile-menu">
+                        <ul class="nav-links">
+                            <li><a href="#" class="nav-link">Dashboard</a></li>
+                            <li><a href="#" class="nav-link active">Boards</a></li>
+                            <li><a href="#" class="nav-link">Analytics</a></li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        
+        <!-- Frame 7: Spacing Annotations -->
+        <div class="frame-section">
+            <div class="frame-label">Frame 7: Spacing Annotations (Redlines)</div>
+            <div class="frame-container">
+                <div class="spacing-demo">
+                    <div class="annotation-line height"></div>
+                    <div class="annotation height">64px</div>
+                    <nav class="navbar" style="position: relative;">
+                        <div class="navbar-container">
+                            <div class="logo-section" style="position: relative;">
+                                <div class="logo">📋</div>
+                                <div class="annotation" style="position: absolute; top: -25px; left: 0;">32×32px</div>
+                                <div class="annotation-line" style="position: absolute; top: 40px; left: 32px; width: 12px;"></div>
+                                <div class="annotation" style="position: absolute; top: 45px; left: 20px;">12px gap</div>
+                                <div class="brand">Kanban Board</div>
+                            </div>
+                            <ul class="nav-links" style="position: relative;">
+                                <div class="annotation" style="position: absolute; top: -25px; left: 0;">8px gap</div>
+                                <li><a href="#" class="nav-link">Dashboard</a></li>
+                                <li><a href="#" class="nav-link active">Boards</a></li>
+                                <li><a href="#" class="nav-link">Analytics</a></li>
+                            </ul>
+                            <div class="actions" style="position: relative;">
+                                <div class="annotation" style="position: absolute; top: -25px; right: 0;">12px gap</div>
+                                <button class="icon-btn search">🔍</button>
+                                <div class="annotation" style="position: absolute; top: 45px; left: 0;">36×36px</div>
+                                <div class="avatar">JD</div>
+                            </div>
+                        </div>
+                        <div class="annotation" style="position: absolute; bottom: -30px; left: 24px;">24px padding</div>
+                        <div class="annotation" style="position: absolute; bottom: -30px; right: 24px;">24px padding</div>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Frame 8: Component Breakdown -->
+        <div class="frame-section">
+            <div class="frame-label">Frame 8: Component Breakdown</div>
+            <div class="component-grid">
+                <div class="component-item">
+                    <div class="logo">📋</div>
+                    <div class="component-label">Logo Icon<br/>32×32px • #2563eb<br/>bg: #eff6ff • r: 8px</div>
+                </div>
+                <div class="component-item">
+                    <div class="brand">Kanban Board</div>
+                    <div class="component-label">Brand Text<br/>20px/700 • #111827<br/>Inter • -0.02em</div>
+                </div>
+                <div class="component-item">
+                    <a href="#" class="nav-link">Dashboard</a>
+                    <div class="component-label">Nav Link (Default)<br/>14px/500 • #374151<br/>p: 8px 12px • r: 8px</div>
+                </div>
+                <div class="component-item">
+                    <a href="#" class="nav-link active">Boards</a>
+                    <div class="component-label">Nav Link (Active)<br/>14px/600 • #2563eb<br/>bg: #eff6ff</div>
+                </div>
+                <div class="component-item">
+                    <button class="icon-btn">🔍</button>
+                    <div class="component-label">Icon Button<br/>36×36px • #6b7280<br/>r: 8px</div>
+                </div>
+                <div class="component-item">
+                    <div class="avatar">JD</div>
+                    <div class="component-label">Avatar<br/>36×36px • circle<br/>border: 2px #e3e6eb</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Frame 9: Nav Link States -->
+        <div class="frame-section">
+            <div class="frame-label">Frame 9: Nav Link — All States</div>
+            <div class="state-grid">
+                <div class="state-item">
+                    <div class="state-label">Default</div>
+                    <a href="#" class="nav-link">Dashboard</a>
+                    <div class="component-label">14px/500<br/>#374151<br/>bg: transparent</div>
+                </div>
+                <div class="state-item">
+                    <div class="state-label">Hover</div>
+                    <a href="#" class="nav-link" style="background: #eef0f3; color: #111827;">Dashboard</a>
+                    <div class="component-label">14px/500<br/>#111827<br/>bg: #eef0f3</div>
+                </div>
+                <div class="state-item">
+                    <div class="state-label">Active</div>
+                    <a href="#" class="nav-link active">Dashboard</a>
+                    <div class="component-label">14px/600<br/>#2563eb<br/>bg: #eff6ff</div>
+                </div>
+                <div class="state-item">
+                    <div class="state-label">Focus</div>
+                    <a href="#" class="nav-link focus">Dashboard</a>
+                    <div class="component-label">Ring: 2px #2563eb<br/>Offset: 2px white</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Frame 10: Icon Button States -->
+        <div class="frame-section">
+            <div class="frame-label">Frame 10: Icon Button — All States</div>
+            <div class="state-grid">
+                <div class="state-item">
+                    <div class="state-label">Default</div>
+                    <button class="icon-btn">🔍</button>
+                    <div class="component-label">36×36px<br/>#6b7280<br/>bg: transparent</div>
+                </div>
+                <div class="state-item">
+                    <div class="state-label">Hover</div>
+                    <button class="icon-btn" style="background: #eef0f3; color: #111827;">🔍</button>
+                    <div class="component-label">36×36px<br/>#111827<br/>bg: #eef0f3</div>
+                </div>
+                <div class="state-item">
+                    <div class="state-label">Active</div>
+                    <button class="icon-btn" style="background: #e3e6eb; color: #111827;">🔍</button>
+                    <div class="component-label">36×36px<br/>#111827<br/>bg: #e3e6eb</div>
+                </div>
+                <div class="state-item">
+                    <div class="state-label">Focus</div>
+                    <button class="icon-btn" style="box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #2563eb;">🔍</button>
+                    <div class="component-label">Ring: 2px #2563eb<br/>Offset: 2px white</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Design Tokens Reference -->
+        <div class="frame-section">
+            <div class="frame-label">Design Tokens Reference</div>
+            <div class="frame-container">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; font-size: 13px; line-height: 1.8;">
+                    <div>
+                        <strong style="color: #111827;">Colors — Surface</strong><br/>
+                        --color-surface-0: #ffffff<br/>
+                        --color-surface-2: #eef0f3<br/>
+                        --color-surface-3: #e3e6eb<br/>
+                        --color-border: rgba(0,0,0,0.10)
+                    </div>
+                    <div>
+                        <strong style="color: #111827;">Colors — Text</strong><br/>
+                        --color-text-primary: #111827<br/>
+                        --color-text-secondary: #374151<br/>
+                        --color-text-muted: #6b7280
+                    </div>
+                    <div>
+                        <strong style="color: #111827;">Colors — Accent</strong><br/>
+                        --color-accent: #2563eb<br/>
+                        --color-accent-hover: #1d4ed8<br/>
+                        --color-accent-subtle: #eff6ff
+                    </div>
+                    <div>
+                        <strong style="color: #111827;">Spacing</strong><br/>
+                        --space-2: 8px<br/>
+                        --space-3: 12px<br/>
+                        --space-4: 16px<br/>
+                        --space-6: 24px
+                    </div>
+                    <div>
+                        <strong style="color: #111827;">Typography</strong><br/>
+                        --text-base: 14px<br/>
+                        --text-lg: 20px<br/>
+                        --weight-medium: 500<br/>
+                        --weight-semibold: 600<br/>
+                        --weight-bold: 700
+                    </div>
+                    <div>
+                        <strong style="color: #111827;">Other</strong><br/>
+                        --radius-md: 8px<br/>
+                        --radius-full: 9999px<br/>
+                        --control-md: 36px<br/>
+                        --header-height: 64px<br/>
+                        --duration-fast: 150ms
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</body>
+</html>

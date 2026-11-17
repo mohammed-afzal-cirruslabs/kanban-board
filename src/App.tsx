@@ -16,19 +16,14 @@ import { Column, Card } from './types'
 import { INITIAL_COLUMNS } from './data'
 import { KanbanColumn } from './components/KanbanColumn'
 import { KanbanCard } from './components/KanbanCard'
-import { TodoPage } from './components/TodoPage'
-import { DatePicker, DateRangePicker } from './components/DatePicker'
-import { ChessGame } from './chess/components/ChessGame'
+import { Navbar } from './components/Navbar'
 import styles from './App.module.css'
-
-type View = 'kanban' | 'todo' | 'datepicker' | 'chess'
 
 function findColumnByCardId(columns: Column[], cardId: string): Column | undefined {
   return columns.find((col) => col.cards.some((c) => c.id === cardId))
 }
 
 function App() {
-  const [view, setView] = useState<View>('kanban')
   const [columns, setColumns] = useState<Column[]>(INITIAL_COLUMNS)
   const [activeCard, setActiveCard] = useState<Card | null>(null)
 
@@ -113,56 +108,11 @@ function App() {
     )
   }
 
-  const viewTitle: Record<View, string> = {
-    kanban: 'Kanban Board',
-    todo: 'Todo List',
-    datepicker: 'Date Picker',
-    chess: 'Chess',
-  }
-
   return (
     <div className={styles.app}>
-      <header className={styles.appHeader}>
-        <h1 className={styles.appTitle}>{viewTitle[view]}</h1>
-        <nav className={styles.nav} aria-label="App navigation">
-          <button
-            className={`${styles.navBtn} ${view === 'kanban' ? styles.navBtnActive : ''}`}
-            onClick={() => setView('kanban')}
-            aria-current={view === 'kanban' ? 'page' : undefined}
-          >
-            Kanban
-          </button>
-          <button
-            className={`${styles.navBtn} ${view === 'todo' ? styles.navBtnActive : ''}`}
-            onClick={() => setView('todo')}
-            aria-current={view === 'todo' ? 'page' : undefined}
-          >
-            Todos
-          </button>
-          <button
-            className={`${styles.navBtn} ${view === 'datepicker' ? styles.navBtnActive : ''}`}
-            onClick={() => setView('datepicker')}
-            aria-current={view === 'datepicker' ? 'page' : undefined}
-          >
-            Date Picker
-          </button>
-          <button
-            className={`${styles.navBtn} ${view === 'chess' ? styles.navBtnActive : ''}`}
-            onClick={() => setView('chess')}
-            aria-current={view === 'chess' ? 'page' : undefined}
-          >
-            Chess
-          </button>
-        </nav>
-        {view === 'kanban' && (
-          <p className={styles.hint}>
-            Drag cards between columns · <kbd>Space</kbd> to pick up · <kbd>←</kbd><kbd>→</kbd> to move column · <kbd>Enter</kbd> to drop
-          </p>
-        )}
-      </header>
+      <Navbar activePage="boards" />
 
-      {view === 'kanban' ? (
-        <main className={styles.board} role="main">
+      <main className={styles.board} role="main">
           <DndContext
             sensors={sensors}
             collisionDetection={closestCorners}
@@ -181,58 +131,6 @@ function App() {
             </DragOverlay>
           </DndContext>
         </main>
-      ) : view === 'todo' ? (
-        <TodoPage />
-      ) : view === 'datepicker' ? (
-        <main style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '2rem', maxWidth: 640 }}>
-          <section>
-            <h2 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted, #888)' }}>
-              Single date — uncontrolled
-            </h2>
-            <DatePicker placeholder="Select a date" />
-          </section>
-          <section>
-            <h2 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted, #888)' }}>
-              Single date — with default value
-            </h2>
-            <DatePicker defaultValue="2024-06-15" />
-          </section>
-          <section>
-            <h2 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted, #888)' }}>
-              Single date — with min / max
-            </h2>
-            <DatePicker defaultValue="2024-06-15" min="2024-06-10" max="2024-06-25" />
-          </section>
-          <section>
-            <h2 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted, #888)' }}>
-              Single date — disabled
-            </h2>
-            <DatePicker defaultValue="2024-06-15" disabled />
-          </section>
-          <section>
-            <h2 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted, #888)' }}>
-              Date range — uncontrolled
-            </h2>
-            <DateRangePicker placeholder="Select a date range" />
-          </section>
-          <section>
-            <h2 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted, #888)' }}>
-              Date range — with default value
-            </h2>
-            <DateRangePicker defaultValue={{ start: '2024-06-10', end: '2024-06-20' }} />
-          </section>
-          <section>
-            <h2 style={{ marginBottom: '0.5rem', fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-muted, #888)' }}>
-              Date range — localised (fr)
-            </h2>
-            <DateRangePicker defaultValue={{ start: '2024-06-10', end: '2024-06-20' }} locale="fr" />
-          </section>
-        </main>
-      ) : (
-        <main role="main">
-          <ChessGame />
-        </main>
-      )}
     </div>
   )
 }

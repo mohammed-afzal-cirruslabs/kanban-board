@@ -22,11 +22,16 @@ import App from '../App'
 import { KanbanColumn } from '../components/KanbanColumn'
 import { Column, Card } from '../types'
 import { arrayMove } from '@dnd-kit/sortable'
+import { ThemeProvider } from '../contexts/ThemeContext'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
 function renderApp() {
-  return render(<App />)
+  return render(
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
+  )
 }
 
 function getTodoCol() {
